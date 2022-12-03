@@ -1,0 +1,57 @@
+{% extends "base.html" %} 
+{% block title %} Conductor Home {% endblock %} 
+
+{% block content %}
+<!-- DETAILS-->
+<div>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th scope="col" ><b>Particulars</b></th>
+      <th scope="col"><b>Details</b></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">Name</th>
+      <td>{{user.name}}</td>
+    </tr>
+
+    <tr>
+      <th scope="row">Bus Number Plate</th>
+      <td>{{cd.bus_no}}</td>
+    </tr>
+    <tr>
+      <th scope="row">Routes Assigned</th>
+      <td>{{cd.routes_assigned}}</td>
+    </tr>
+
+    <tr>
+      <th scope="row">Current trip ID</th>
+      <td>{{cd.current_trip_id}}</td>
+    </tr>
+    <tr>
+      <th scope="row">Account Number</th>
+      <td>{{user.account_number}}</td>
+    </tr>
+    <tr>
+      <th scope="row">Phone Number</th>
+      <td>{{user.phone_number}}</td>
+    </tr>
+    <tr>
+      <th scope="row">Account Type</th>
+      <td>{{user.type}}</td>
+    </tr>
+    <tr>
+      <th scope="row">Account Balance</th>
+      <td>{{user.balance}}</td>
+    </tr>
+    
+  </tbody>
+</table>
+
+</div>
+<hr><br>
+
+
+{% endblock %}

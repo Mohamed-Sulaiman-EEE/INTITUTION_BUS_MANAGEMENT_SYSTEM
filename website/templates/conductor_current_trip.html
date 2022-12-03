@@ -1,0 +1,201 @@
+{% extends "base.html" %} 
+{% block title %} Conductor Current Trip {% endblock %} 
+
+{% block content %}
+{%if cd.current_trip_id %}
+<!--CAMERA-->
+<div>
+
+    <div>
+        <h1 align = "center">
+            Camera Stuffs
+        </h1>
+    </div>
+
+    <div>
+            <form action="#" id="myform" enctype="multipart/form-data">
+                <label for="capture">Capture QR</label>
+            
+                <input type="file" 
+                id="capture" 
+                accept="image/*" 
+                capture 
+                />
+                <br/>
+            </form>
+            <br>
+            <hr>
+            {%if 1%}
+            <img class = "img-fluid img-thumbnail " src="" id="img" alt="from phone"/>
+            {%endif%}
+    
+    </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', (ev)=>{
+                let form = document.getElementById('myform');
+                //get the captured media file
+                let input = document.getElementById('capture');
+                
+                input.addEventListener('change', (ev)=>{
+                    console.dir( input.files[0] );
+                    if(input.files[0].type.indexOf("image/") > -1){
+                        let img = document.getElementById('img');
+                        img.src = window.URL.createObjectURL(input.files[0]);
+                        console.log()
+                    }  
+                })
+            })
+        </script>
+</div>
+<!--CAMERA-->
+
+<div>
+    
+<button id="start-camera">Start Camera</button>
+<video id="video"  width="320" height="240" autoplay></video>
+<button id="click-photo">Click Photo</button>
+<canvas id="canvas" width="320" height="240"></canvas>
+<br>
+<hr>
+<h1>Account Number : </h1>
+<h3 id = "camera_account_number" ></h3>
+<br>
+<hr>
+<button onClick = "load_account_number()"  >LOAD</button>
+<script>
+
+let camera_button = document.querySelector("#start-camera");
+let video = document.querySelector("#video");
+let click_button = document.querySelector("#click-photo");
+let canvas = document.querySelector("#canvas");
+
+camera_button.addEventListener('click', async function() {
+   	let stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+	video.srcObject = stream;
+});
+
+click_button.addEventListener('click', function() {
+   	canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+   	let image_data_url = canvas.toDataURL('image/jpeg');
+
+   	// data url of the image
+   	console.log(image_data_url);
+    load_account_number(image_data_url);
+    return image_data_url
+});
+
+
+
+function load_account_number(data){
+document.getElementById("camera_account_number").innerHTML = data;
+load_image(data)
+};
+
+function load_image(data){
+    fetch("/load-image", 
+  {
+    method: "POST",
+    body: JSON.stringify({ data : data }),
+  }
+  ).then((_res) => {
+    window.location.href = "/conductor-current-trip";
+  });
+}
+</script>
+
+</div>
+<!--END OF CAMERA-->
+<br><hr>
+
+
+
+
+<!--book ticket form-->
+    <form method="POST">
+        <h3 align="center">Book Ticket</h3>
+        <div class="form-group">
+            <label for="email">Account Number</label>
+            <input
+                type="text"
+                class="form-control"
+                id="account_number"
+                name="account_number"
+                placeholder="Enter Account Number"
+            />
+            </div>
+
+            <div class="form-group input-group-lg">
+            <label for="to">Choose Destination      :</label>
+            <select id="to" name="to" class="form-grp">
+                {%for stop in display_stops%}
+                <option value={{stop}}>{{stop}}</option>
+                {%endfor%}
+            </select>
+            
+            <div class="form-group">
+            <label for="no">Number of Passengers  :</label>
+            <select id="no" name="no" >
+                {%for i in range(1,10)%}
+                <option value={{i}}>{{i}}</option>
+                {%endfor%}
+                
+            </select>    
+        </div>
+        <br>
+        <button type="submit" class="btn btn-primary" >Book</button>
+    </form>
+
+
+<!--Trip details-->
+    <div>
+        <h1 align = "center">Trip Details</h1>
+        <h4>Trip ID            :    <span class="badge bg-secondary btn-primary">{{trip.trip_id}}</span></h4>
+        <h4>Route ID           :    <span class="badge bg-secondary btn-primary">{{trip.route_id}}</span></h4>
+        <h4>Bus No             :    <span class="badge bg-secondary btn-primary">{{trip.bus_no}}</span></h4>
+        <h4>From               :    <span class="badge bg-secondary btn-primary">{{route.start}}</span></h4>
+        <h4>To                 :    <span class="badge bg-secondary btn-primary">{{route.end}}</span></h4>
+        <h4>Intermediate Stops :    <span class="badge bg-secondary btn-primary">{{route.stops}}</span></h4>
+        <h4>Collection         :    <span class="badge bg-secondary btn-primary">{{trip.collection}}</span></h4>
+        <h4>Ticket Run         :    <span class="badge bg-secondary btn-primary">{{trip.ticket_run}}</span></h4>
+        <h4>Current Passengers :    <span class="badge bg-secondary btn-primary">{{trip.current_passengers}}</span></h4>
+        <h4>Current Stop       :    <span class="badge bg-secondary btn-primary">{{trip.current_stop}}</span></h4>
+        <h4>GPS                :    <span class="badge bg-secondary btn-primary">{{trip.gps}}</span></h4>
+    </div>
+
+<!--TRIP CONTROLS-->
+    <div align = "center"  >
+        <h1 align = "center">TRIP CONTROLS</h1>
+        <div class="btn-group-vertical" role="group" aria-label="Vertical button group" >
+        <a class="btn  btn-primary  " href="/conductor-utility-next-stop/{{cd.current_trip_id}} " role="button" onclick="refreshGPS()" > NEXT STOP  </a><br>
+        <button type = "button " class = "btn btn-secondary" onclick="refreshGPS()" >REFRESH GPS</button><br>
+        <a class="btn  btn-info " href="/conductor-utility-emergency-alert/{{route}} " role="button"  >EMERGENCY ALERT</a><br>
+        <a class="btn  btn-warning " href="/conductor-utility-repair-alert/{{cd.current_trip_id}} " role="button"  >REPAIR ALERT</a><br>
+        <a class="btn  btn-danger " href="/conductor-utility-end-trip/{{cd.current_trip_id}} " role="button" onclick="refreshGPS()"  > END TRIP </a><br>
+        </div>
+        <br><hr>
+
+        <button type = "button " class = "btn btn-secondary" onclick="newTab({{trip.gps}})" >VIEW ON MAP : JS </button><br>
+
+
+        <br><hr><br>
+        <a class="btn  btn-danger " onclick="myVar = setInterval(refreshGPS, 300)" role="button"  > VIEW ON MAP : BACKEND </a><br>
+
+
+    </div>
+
+
+
+
+
+{%endif%}
+
+{% if cd.current_trip_id == None %}
+<h1>No Current trip !!!</h1>
+{%endif%}
+
+
+
+
+{% endblock %}
+

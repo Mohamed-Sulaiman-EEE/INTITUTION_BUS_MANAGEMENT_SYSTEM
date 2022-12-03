@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %} HOME {% endblock %} 
+{% block content%}
+<h1 align = "center" style ="font-weight: 600 ; color :rgb(13, 176, 245) "  >
+ "Route Map "
+</h1>
+<div align = "center">
+<img src="{{ url_for('static', filename='images/{0}.jpg'.format(route))}}" class="img-fluid" alt="Responsive image" >
+</div>
+
+
+{% endblock %}

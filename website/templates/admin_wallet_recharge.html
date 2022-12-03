@@ -1,0 +1,98 @@
+{% extends "base.html" %} 
+{% block title %} Admin Wallet Recharge {% endblock %} 
+
+{% block content %}
+
+<br>
+<!-- USER RECHARGE -->
+<div>
+  <h1 align="center" >User Recharge</h1>
+  <br>
+  <form method="POST">
+    <div class="form-group">
+      <label for="no">Enter Account number</label>
+      <input
+        type="text"
+        class="form-control"
+        id="account_number"
+        name="account_number"
+        placeholder="Enter account Number"
+      />
+    </div>
+    
+    <div class="form-group">
+      <label for="integer">Enter value </label>
+      <input
+        type="integer"
+        class="form-control"
+        id="val"
+        name="val"
+        placeholder="Enter Value"
+      />
+    </div>
+    <br>
+    <button type="submit" class="btn btn-outline-primary">Recharge</button>
+
+  </form>
+</div>
+<!-- USER DETAILS-->
+<div>
+{%if passenger%}
+<h3 align = "center">User Details</h3>
+<h5>User Name <span class="badge badge-secondary">{{passenger.name}}</span></h5>
+<h5>User Account Number <span class="badge badge-secondary">{{passenger.account_number}}</span></h5>
+<h5>User Phone Number <span class="badge badge-secondary">{{passenger.phone_number}}</span></h5>
+<h5>User Balance <span class="badge badge-secondary">{{passenger.balance}}</span></h5>
+{%endif%}
+</div>
+
+<!-- SCRATCH CARD-->
+<hr>
+<h1 align = "center">Scratch Card Generation</h1>
+<div>
+<h2>Scratch Card run : <span class="badge badge-secondary">{{scr.scratch_card_run}}</span></h1>
+<br>
+<div>
+
+<div>
+<form method="POST">
+    
+    <div class="form-group">
+      <label for="no">Enter no of cards to be generated</label>
+      <input
+        type="integer"
+        class="form-control"
+        id="no"
+        name="no"
+        placeholder="Enter no of cards to be generated"
+      />
+    </div>
+    
+    <div class="form-group">
+      <label for="integer">Enter value of card</label>
+      <input
+        type="integer"
+        class="form-control"
+        id="value"
+        name="value"
+        placeholder="Enter Boarding station"
+      />
+    </div>
+    <br />
+    <button type="submit" class="btn  btn-outline-success">Generate</button>
+</form>
+</div>
+</div>
+
+
+
+</div>
+
+
+<div align = "center">
+  <a class="btn btn-primary btn-large btn-warning" href="/admin-utility-view-scratch-cards" role="button"  >VIEW SCRATCH CARDS</a>
+  
+
+  <br><hr>
+</div>
+{% endblock %}

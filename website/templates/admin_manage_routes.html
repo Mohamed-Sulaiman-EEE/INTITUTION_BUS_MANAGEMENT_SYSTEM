@@ -1,0 +1,83 @@
+{% extends "base.html" %} 
+{% block title %} Admin Home {% endblock %} 
+{% block content %}
+
+<div>
+    <form method="POST">
+    <h3 align="center"><B>Add Routes</B></h3>
+    <div class="form-group">
+      <label for="route_id">Route ID</label>
+      <input
+        type="text"
+        class="form-control"
+        id="route_id"
+        name="route_id"
+        placeholder="Enter Route ID"
+      />
+    </div>
+    <div class="form-group">
+      <label for="start">Starting stop</label>
+      <input
+        type="text"
+        class="form-control"
+        id="start"
+        name="start"
+        placeholder="Enter Boarding stop"
+      />
+    </div>
+    <div class="form-group">
+      <label for="stop">Ending stop</label>
+      <input
+        type="text"
+        class="form-control"
+        id="end"
+        name="end"
+        placeholder="Enter Destination stop"
+      />
+    </div>
+    <div class="form-group">
+      <label for="stops">Stops</label>
+      <input
+        type="text"
+        class="form-control"
+        id="stops"
+        name="stops"
+        placeholder="Enter in between stops "
+      />
+    </div>
+
+    <br />
+    <button type="submit" class="btn btn-primary">ADD ROUTE</button>
+  </form>
+</div>
+<br>
+<div>
+    <h1 align = "center">Routes </h1>
+    <!-- DETAILS-->
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col" ><b>#</b></th>
+        <th scope="col"><b>STARTING STOP</b></th>
+        <th scope="col"><b>ENDING STOP</b></th>
+        <th scope="col"><b>IN-BETWEEN STOPS</b></th>
+      </tr>
+    </thead>
+       
+    <tbody>
+      {%for r in route%}
+      <tr>
+        <th>{{r.route_id}}</th>
+        <td>{{r.start}}</td>
+        <td>{{r.end}}</td>
+        <td>{{r.stops}}</td>
+      </tr>
+      {%endfor%}
+    </tbody>
+  </table>
+
+</div>
+
+
+{% endblock %}

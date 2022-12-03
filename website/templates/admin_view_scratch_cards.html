@@ -1,0 +1,34 @@
+{% extends "base.html" %} 
+{% block title %} Admin Scratch Cards {% endblock %} 
+
+{% block content %}
+<div>
+    <div>
+        <h1 align = "center">SCRATCH CARDS</h1>
+        <!-- DETAILS-->
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col" ><b>CARD NUMBER</b></th>
+            <th scope="col"><b>SECURITY HASH</b></th>
+            <th scope="col"><b>VALUE</b></th>
+          </tr>
+        </thead>
+          
+        <tbody>
+          {%for s in scratch_cards %}
+          <tr>
+            <th>{{s.card_number}}</th>
+            <td>{{s.security_hash}}</td>
+            <td>{{s.value}}</td>
+          </tr>
+          {%endfor%}
+        </tbody>
+      </table>
+  
+    </div>
+
+    
+
+</div>
+{% endblock %}
