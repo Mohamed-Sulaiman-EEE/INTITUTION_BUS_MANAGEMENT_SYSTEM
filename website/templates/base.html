@@ -20,7 +20,7 @@
   <body>
 
 {%if user.is_authenticated %}
-  {%if user.type == "U"%}
+  {%if user.type == "S"%}
     <!-- NAVIGATION BAR-->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <button
@@ -42,6 +42,7 @@
   </div>
     </nav>
   {%endif%}
+
   {%if user.type == "C"%}
     <!-- NAVIGATION BAR-->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">

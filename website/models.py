@@ -9,18 +9,55 @@ from sqlalchemy.sql import func
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(150), unique=True)
-    password = db.Column(db.String(150))
-    name = db.Column(db.String(150))
+    name = db.Column(db.String(30))
+    email = db.Column(db.String(50), unique=True)
+    password = db.Column(db.String(25))
     phone_number = db.Column(db.String(15))
     type = db.Column(db.String(1))
-    account_number = db.Column(db.String(10))
-    balance = db.Column(db.Integer)
-    scratch_cards = db.relationship('Scratch_card')
-    helpdesk_recharges = db.relationship('Helpdesk_recharge')
-    trips = db.relationship('Trip')
-    #tickets = db.relationship('Ticket')
+    rfid_number = db.Column(db.String(10))
 
+class Student(db.Model , UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    route = db.Column(db.String(1))
+    parents_phone = db.Column(db.String(15))
+
+class Conductor(db.Model , UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+
+
+
+class Route(db.Model):
+    id = db.Column(db.String(1), primary_key=True)
+    start = db.Column(db.String(10))
+    end = db.Column(db.String(10))
+    phases = db.Column(db.String(250))
+
+class Gps_data(db.Model):
+    bus_no = db.Column(db.String(1), primary_key=True)
+    lat = id = db.Column(db.String(20), primary_key=True)
+    long = id = db.Column(db.String(20), primary_key=True)
+    gps = lat = id = db.Column(db.String(20), primary_key=True)
+
+
+class Bus_details(db.Model):
+    bus_no = db.Column(db.String(1), primary_key=True)
+    plate_number = db.Column(db.String(10))
+
+
+class Location_reference(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(15))
+    lat = id = db.Column(db.String(20), primary_key=True)
+    long = id = db.Column(db.String(20), primary_key=True)
+    gps = lat = id = db.Column(db.String(20), primary_key=True)
+
+
+
+
+#............................NEW .....................................
+
+
+'''
 
 class Conductor_details(db.Model, UserMixin):
     conductor_id = db.Column(db.Integer , primary_key = True)
@@ -35,14 +72,7 @@ class Route(db.Model):
     end =db.Column(db.String(100))
     stops = db.Column(db.String(100))
 
-class Scratch_card(db.Model,UserMixin):
-    id = db.Column(db.Integer , primary_key = True)
-    card_number =db.Column(db.Integer)
-    security_hash = db.Column(db.Integer)
-    value = db.Column(db.Integer)
-    status = db.Column(db.String(1))
-    user_id = db.Column(db.Integer , db.ForeignKey('user.id'))
-    date = db.Column(db.String(10))
+
     
 class Site_settings(db.Model):
     id = db.Column(db.Integer , primary_key = True)
@@ -74,28 +104,6 @@ class Trip(db.Model,UserMixin):
     tickets = db.relationship('Ticket')
     lat = db.Column(db.String)
     long = db.Column(db.String)
-    #conductor_details = db.relationship('Conductor_details')
 
 
-class Fare(db.Model):
-    id = db.Column(db.Integer , primary_key = True)
-    from_ = db.Column(db.String)
-    to = db.Column(db.String)
-    price = db.Column(db.Integer)
-    routes = db.Column(db.String)
-
-class Ticket(db.Model,UserMixin):
-    ticket_id = db.Column(db.String(100), primary_key = True)
-    trip_id = db.Column(db.Integer , db.ForeignKey('trip.trip_id'))
-    #user_id = db.Column(db.Integer , db.ForeignKey('user.id'))
-    #passenger_account_number =  db.Column(db.Integer , db.ForeignKey('user.account_number'))
-    passenger_account_number =  db.Column(db.String)
-    route = db.Column(db.String(100))
-    boarding_stop = db.Column(db.String(100))
-    destination_stop = db.Column(db.String(100))
-    date = db.Column(db.String(100))
-    time = db.Column(db.String(100))
-    no = db.Column(db.Integer)
-    fare = db.Column(db.Integer)
-
-
+'''
