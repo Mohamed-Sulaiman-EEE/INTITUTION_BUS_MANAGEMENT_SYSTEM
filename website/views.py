@@ -32,6 +32,28 @@ def student_home():
     return render_template("student_home.html" , user = current_user)
 
 
+
+@views.route('/student-profile', methods=['GET', 'POST'])
+@login_required
+def student_profile():
+    return render_template("student_profile.html" , user = current_user)
+
+
+
+@views.route('/student-notification-settings', methods=['GET', 'POST'])
+@login_required
+def student_notification_settings():
+    return render_template("student_notification_settings.html" , user = current_user)
+
+
+
+@views.route('/student-trip-history', methods=['GET', 'POST'])
+@login_required
+def student_trip_history():
+    return render_template("student_trip_history.html" , user = current_user)
+
+
+
 #.................................CONDUCTOR FUNCTIONS .............................................
 
 @views.route('/conductor-home', methods=['GET', 'POST'])
@@ -39,14 +61,73 @@ def student_home():
 def conductor_home():
     return render_template("conductor_home.html" , user = current_user)
 
-#...................................ADMI FUNCTIONS.................................................
+
+
+
+@views.route('/conductor-current-trip', methods=['GET', 'POST'])
+@login_required
+def conductor_current_trip():
+    return render_template("conductor_current_trip.html" , user = current_user)
+
+
+
+@views.route('/conductor-trip-history', methods=['GET', 'POST'])
+@login_required
+def conductor_trip_history():
+    return render_template("conductor_trip_history.html" , user = current_user)
+
+
+
+
+#...................................ADMIN FUNCTIONS.................................................
 
 @views.route('/admin-home', methods=['GET', 'POST'])
 @login_required
 def admin_home():
     return render_template("admin_home.html" , user = current_user )
 
-#....................................................................................
+
+@views.route('/admin-user-management', methods=['GET', 'POST'])
+@login_required
+def admin_user_management():
+    return render_template("admin_user_management.html" , user = current_user )
+
+
+@views.route('/admin-trip-management', methods=['GET', 'POST'])
+@login_required
+def admin_trip_management():
+    return render_template("admin_trip_management.html" , user = current_user )
+
+
+@views.route('/admin-fleet-management', methods=['GET', 'POST'])
+@login_required
+def admin_fleet_management():
+    return render_template("admin_fleet_management.html" , user = current_user )
+
+
+
+@views.route('/admin-financial-stats', methods=['GET', 'POST'])
+@login_required
+def admin_finanacial_stats():
+    return render_template("admin_financial_stats.html" , user = current_user )
+
+
+
+@views.route('/admin-emulator', methods=['GET', 'POST'])
+@login_required
+def admin_emulator():
+    return render_template("admin_emulator.html" , user = current_user )
+
+
+
+#...................................UTILITY FUNCTIONS.................................................
+
+
+
+
+
+#...................................API.................................................
+
 
 
 
@@ -63,17 +144,6 @@ def utility_view_route_map(route):
 
 
 
-def generate_account_details(current_user):
-    l = 5-len(str(current_user.id))
-    prefix = "0"*l + str(current_user.id)
-    no = "AAAAA" + prefix
-    current_user.account_number = no
-    current_user.type = "C"
-    db.session.commit()
-    
-
-
-
 @views.route('/utility-view-map/<trip_id>', methods=['GET' , 'POST'])
 @login_required
 def utility_view_map(trip_id):
@@ -86,9 +156,6 @@ def utility_view_map(trip_id):
     webbrowser.open_new(url)
     return redirect(url_for('views.conductor_current_trip'))
     
-
-
-
 
 
 @views.route('/test-js', methods=['POST'])

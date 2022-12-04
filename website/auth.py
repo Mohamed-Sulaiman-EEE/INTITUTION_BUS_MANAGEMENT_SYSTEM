@@ -44,7 +44,7 @@ def conductor_login():
         type = user.type
         if type != "C":
             flash("You dont belong here")
-            return render_template("login.html", user = current_user)
+            return render_template("conductor_login.html", user = current_user)
         if user:
             if check_password_hash(user.password, password):
                 flash('Logged in successfully!', category='success')
@@ -54,7 +54,6 @@ def conductor_login():
                 flash('Incorrect password, try again.', category='error')
         else:
             flash('Email does not exist.', category='error')
-    
     return render_template("conductor_login.html", user = current_user)
 
 
@@ -86,13 +85,9 @@ def admin_login():
 def generate_account_details(current_user):
     l = 5-len(str(current_user.id))
     prefix = "0"*l + str(current_user.id)
-    no = "AAAAA" + prefix
-    current_user.account_number = no
-    current_user.type = "U"
+    no = "TCE" + prefix
+    current_user.rfid_number = no
     db.session.commit()
-    data = no
-    image = qrcode.make(data=data)
-    image.save( "./website/static/images/{0}.png".format(current_user.account_number))
     
 
 
@@ -125,13 +120,13 @@ def sign_up():
             flash('Password must be at least 7 characters.', category='error')
         else:
             new_user = User(email=email, name= name ,phone_number= phone_number ,  password=generate_password_hash(
-                password1, method='sha256') , balance = 0 )
+                password1, method='sha256') , type = "S")
             db.session.add(new_user)
             db.session.commit()
             login_user(new_user, remember=True)
-            flash('Account created!', category='success')
             generate_account_details(current_user)
-            return redirect(url_for('views.user_home'))
+            flash('Account created!', category='success')
+            return redirect(url_for('views.student_home'))
 
     return render_template("sign_up.html", user=current_user)
 

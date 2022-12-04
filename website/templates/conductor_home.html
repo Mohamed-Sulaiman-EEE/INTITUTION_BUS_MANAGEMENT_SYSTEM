@@ -1,5 +1,5 @@
 {% extends "base.html" %} 
-{% block title %} Conductor Home {% endblock %} 
+{% block title %} Conductor Dashboard {% endblock %} 
 
 {% block content %}
 <!-- DETAILS-->
@@ -17,19 +17,6 @@
       <td>{{user.name}}</td>
     </tr>
 
-    <tr>
-      <th scope="row">Bus Number Plate</th>
-      <td>{{cd.bus_no}}</td>
-    </tr>
-    <tr>
-      <th scope="row">Routes Assigned</th>
-      <td>{{cd.routes_assigned}}</td>
-    </tr>
-
-    <tr>
-      <th scope="row">Current trip ID</th>
-      <td>{{cd.current_trip_id}}</td>
-    </tr>
     <tr>
       <th scope="row">Account Number</th>
       <td>{{user.account_number}}</td>

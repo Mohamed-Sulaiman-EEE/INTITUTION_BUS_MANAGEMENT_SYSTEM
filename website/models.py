@@ -16,12 +16,13 @@ class User(db.Model, UserMixin):
     type = db.Column(db.String(1))
     rfid_number = db.Column(db.String(10))
 
-class Student(db.Model , UserMixin):
+class Student_details(db.Model , UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     route = db.Column(db.String(1))
     parents_phone = db.Column(db.String(15))
 
-class Conductor(db.Model , UserMixin):
+
+class Conductor_details(db.Model , UserMixin):
     id = db.Column(db.Integer, primary_key=True)
 
 
@@ -34,9 +35,9 @@ class Route(db.Model):
 
 class Gps_data(db.Model):
     bus_no = db.Column(db.String(1), primary_key=True)
-    lat = id = db.Column(db.String(20), primary_key=True)
-    long = id = db.Column(db.String(20), primary_key=True)
-    gps = lat = id = db.Column(db.String(20), primary_key=True)
+    lat = db.Column(db.String(20))
+    long = db.Column(db.String(20))
+    gps = db.Column(db.String(20))
 
 
 class Bus_details(db.Model):
@@ -47,9 +48,13 @@ class Bus_details(db.Model):
 class Location_reference(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(15))
-    lat = id = db.Column(db.String(20), primary_key=True)
-    long = id = db.Column(db.String(20), primary_key=True)
-    gps = lat = id = db.Column(db.String(20), primary_key=True)
+    lat = db.Column(db.String(20))
+    long = db.Column(db.String(20))
+    gps = db.Column(db.String(20))
+
+class Site_settings(db.Model):
+    key =  db.Column(db.String ,primary_key=True )
+    value =  db.Column(db.String)
 
 
 
