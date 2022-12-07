@@ -23,7 +23,7 @@ class Student_details(db.Model , UserMixin):
 
 
 class Conductor_details(db.Model , UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
+    condcutor_id = db.Column(db.Integer, primary_key=True)
 
 
 
@@ -33,16 +33,14 @@ class Route(db.Model):
     end = db.Column(db.String(10))
     phases = db.Column(db.String(250))
 
-class Gps_data(db.Model):
-    bus_no = db.Column(db.String(1), primary_key=True)
+
+
+class Bus_data(db.Model):
+    no = db.Column(db.String(1), primary_key=True)
+    plate_number = db.Column(db.String(10))
     lat = db.Column(db.String(20))
     long = db.Column(db.String(20))
     gps = db.Column(db.String(20))
-
-
-class Bus_details(db.Model):
-    bus_no = db.Column(db.String(1), primary_key=True)
-    plate_number = db.Column(db.String(10))
 
 
 class Location_reference(db.Model):
@@ -57,7 +55,23 @@ class Site_settings(db.Model):
     value =  db.Column(db.String)
 
 
+class Working_day(db.Model):
+    day = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.String(15))
+    trips_created = db.Column(db.String(1))
+    
 
+
+class Trips(db.Model):
+    trip_id = db.Column(db.Integer, primary_key=True)
+    working_day = db.Column(db.Integer)
+    route_id = db.Column(db.Integer)
+    conductor_id = db.Column(db.Integer)
+    session = db.Column(db.String(1))
+    status = db.Column(db.String(15))
+    current_phase = db.Column(db.String(15))
+    start_time =  db.Column(db.String(15))
+    end_time = db.Column(db.String(15))
 
 #............................NEW .....................................
 

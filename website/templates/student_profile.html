@@ -2,16 +2,6 @@
 {% block title %}Student Profile{% endblock %} 
 
 {% block content %}
-
-
-
-
-<!-- QR CODE -->
-<div align = "center">
-<img src="{{ url_for('static', filename='/images/{0}.png'.format(user.account_number)) }}" class="img-fluid" alt="Responsive image" >
-</div>
-
-
 <!-- DETAILS-->
 <div>
   <table class="table table-striped">
@@ -27,7 +17,7 @@
         <td>{{user.name}}</td>
       </tr>
       <tr>
-        <th scope="row">Account Number</th>
+        <th scope="row">RFID Number</th>
         <td>{{user.account_number}}</td>
       </tr>
       <tr>
@@ -39,12 +29,17 @@
         <td>{{user.type}}</td>
       </tr>
       <tr>
-        <th scope="row">Account Balance</th>
-        <td>{{user.balance}}</td>
+        <th scope="row">Route</th>
+        <td>{{student_detail.route}}</td>
+      </tr>
+      <tr>
+        <th scope="row">Parents Phone Number</th>
+        <td>{{student_detail.parents_phone}}</td>
       </tr>
       
     </tbody>
   </table>
+  <a class="btn  btn-warning " href="/conductor-utility-repair-alert/ " role="button"  >RESET PASSWORD</a><br>
   </div>
 
 

@@ -7,9 +7,8 @@ from flask_login import login_required, current_user
 from .models import User
 from . import db
 import json , requests , random , datetime
-import webbrowser
 from werkzeug.security import generate_password_hash, check_password_hash
-
+from .models import Student_details , Working_day
 from twilio.rest import Client
 ACCOUNT_SID = "AC7f9029cb62c986a4c38b0ef0bb395a27" 
 
@@ -36,7 +35,9 @@ def student_home():
 @views.route('/student-profile', methods=['GET', 'POST'])
 @login_required
 def student_profile():
-    return render_template("student_profile.html" , user = current_user)
+    student_detail = Student_details.query.filter_by(id = current_user.id).first()
+    return render_template("student_profile.html" , user = current_user,
+    student_detail = student_detail)
 
 
 
@@ -96,7 +97,9 @@ def admin_user_management():
 @views.route('/admin-trip-management', methods=['GET', 'POST'])
 @login_required
 def admin_trip_management():
-    return render_template("admin_trip_management.html" , user = current_user )
+    working_days = Working_day.query.all()
+    return render_template("admin_trip_management.html" , user = current_user , 
+    working_days = working_days )
 
 
 @views.route('/admin-fleet-management', methods=['GET', 'POST'])

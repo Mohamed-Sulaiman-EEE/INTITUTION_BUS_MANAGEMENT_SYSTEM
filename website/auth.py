@@ -5,7 +5,7 @@ from .models import User
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
 from flask_login import login_user, login_required, logout_user, current_user
-import qrcode 
+
 
 auth = Blueprint('auth', __name__)
 
@@ -16,12 +16,13 @@ def student_login():
         password = request.form.get('password')
 
         user = User.query.filter_by(email=email).first()
-        type = user.type
-        if type != "S":
-            flash("You dont belong here")
-            return render_template("student_login.html", user = current_user)
-
+        
         if user:
+            type = user.type
+            if type != "S":
+                flash("You dont belong here")
+                return render_template("student_login.html", user = current_user)
+
             if check_password_hash(user.password, password):
                 flash('Logged in successfully!', category='success')
                 login_user(user, remember=True)

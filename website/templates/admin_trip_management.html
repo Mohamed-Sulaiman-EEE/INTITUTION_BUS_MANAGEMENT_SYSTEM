@@ -2,6 +2,41 @@
 {% block title %} Admin Trip Management{% endblock %} 
 
 {% block content %}
+<div align="centre" class = "container">
 
+<div>
+    <h1 align = "center">Working Day</h1>
+    <!-- DETAILS-->
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col" ><b>TRIP ID</b></th>
+        <th scope="col"><b>TICKET ID</b></th>
+        <th scope="col"><b>ROUTE ID</b></th>
+        <th scope="col"><b>BOARDING STOP</b></th>
+        <th scope="col"><b>DESTINATION STOP</b></th>
+        <th scope="col"><b>TIME</b></th>
+        <th scope="col"><b>DATE</b></th>
+        <th scope="col"><b>FARE</b></th>
+        <th scope="col"><b>TOTAL TICKETS</b></th>
+      </tr>
+    </thead>
+      
+    <tbody>
+    {%if working_day%}
+      {%for w in  working_days %}
+      <tr>
+        <th></th>
+      </tr>
+      {%endfor%}
+      {%endif%}
+    </tbody>
+  </table>
+
+</div>
+
+
+<a class="btn  btn-primary " href="/" role= "button"  >CREATEWORKING DAY</a><br>
+</div>
 
 {% endblock %}
