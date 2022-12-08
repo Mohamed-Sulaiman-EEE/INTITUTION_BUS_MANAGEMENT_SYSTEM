@@ -99,7 +99,7 @@ def admin_user_management():
 def admin_trip_management():
     working_days = Working_day.query.all()
     return render_template("admin_trip_management.html" , user = current_user , 
-    working_days = working_days )
+                        working_days = working_days )
 
 
 @views.route('/admin-fleet-management', methods=['GET', 'POST'])
@@ -125,7 +125,37 @@ def admin_emulator():
 
 #...................................UTILITY FUNCTIONS.................................................
 
+@views.route('utility/week-book' , methods = ['POST','GET'])
+@login_required
+def week_book():
+    data = json.loads(request.data)
+    week_starting_date = data["week_starting_date"]
+    monday = data["monday"]
+    tuesday = data["tuesday"]
+    wednesday = data["wednesday"]
+    thursday = data["thursday"]
+    friday = data["friday"]
+    print(data)
+    if week_starting_date:
+        date = week_starting_date.split("-")
+        date = datetime.datetime(int(date[0]),int(date[1]),int(date[2]))
+        if monday :
+            create_trip( date+datetime.timedelta(days=1))
+        if tuesday :
+            create_trip( date+datetime.timedelta(days=2))
+        if wednesday :
+            create_trip( date+datetime.timedelta(days=3))
+        if thursday :
+            create_trip( date+datetime.timedelta(days=4))
+        if friday :
+            create_trip( date+datetime.timedelta(days=5))
+       
+    return jsonify({})
 
+def create_trip(date):
+    new = Working_day(date = date.strftime("%x") , trips_created = "N" , week_day = date.strftime("%a"))
+    db.session.add(new)
+    db.session.commit()
 
 
 

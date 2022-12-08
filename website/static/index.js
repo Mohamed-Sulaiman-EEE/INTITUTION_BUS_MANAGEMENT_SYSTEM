@@ -1,3 +1,40 @@
+function week_book(){
+  
+  let week_starting_day = document.getElementById("week_starting_day").value;
+
+  
+if (document.getElementById("monday").checked)
+{
+  monday = 1;
+}
+if (document.getElementById("tuesday").checked)
+{
+  tuesday = 2;
+}
+if (document.getElementById("wednesday").checked)
+{
+  wednesday = 3;
+}
+if (document.getElementById("thursday").checked)
+{
+  thursday = 4;
+}
+if (document.getElementById("friday").checked)
+{
+  friday = 5;
+}
+  fetch("utility/week-book",
+  {
+    method:"POST",
+    body : JSON.stringify({week_starting_date : week_starting_day ,
+      monday : monday, tuesday : tuesday ,wednesday:wednesday , thursday:thursday , friday:friday
+     })
+  }).then((_res) => {
+    location.reload()
+  });
+}
+
+
 function test_js(trip_id , a) 
 {
   console.log(trip_id);

@@ -58,6 +58,7 @@ class Site_settings(db.Model):
 class Working_day(db.Model):
     day = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.String(15))
+    week_day = db.Column(db.String(15))
     trips_created = db.Column(db.String(1))
     
 
