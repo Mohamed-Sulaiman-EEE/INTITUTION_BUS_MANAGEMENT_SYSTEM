@@ -23,7 +23,7 @@ class Student_details(db.Model , UserMixin):
 
 
 class Conductor_details(db.Model , UserMixin):
-    condcutor_id = db.Column(db.Integer, primary_key=True)
+    conductor_id = db.Column(db.Integer, primary_key=True)
 
 
 
@@ -68,6 +68,7 @@ class Trips(db.Model):
     working_day = db.Column(db.Integer)
     route_id = db.Column(db.Integer)
     conductor_id = db.Column(db.Integer)
+    bus_id =  db.Column(db.String(1))
     session = db.Column(db.String(1))
     status = db.Column(db.String(15))
     current_phase = db.Column(db.String(15))

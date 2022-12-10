@@ -8,7 +8,7 @@ from .models import User
 from . import db
 import json , requests , random , datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-from .models import Student_details , Working_day
+from .models import Student_details , Working_day , Site_settings , Route , Location_reference , Bus_data, Conductor_details , Trips
 from twilio.rest import Client
 ACCOUNT_SID = "AC7f9029cb62c986a4c38b0ef0bb395a27" 
 
@@ -98,8 +98,13 @@ def admin_user_management():
 @login_required
 def admin_trip_management():
     working_days = Working_day.query.all()
+    routes = Route.query.all()
+    bus_data = Bus_data.query.all()
+    conductor_details= Conductor_details.query.all()
+    trips = Trips.query.all()
+
     return render_template("admin_trip_management.html" , user = current_user , 
-                        working_days = working_days )
+                        working_days = working_days , routes = routes , bus_data=bus_data , conductor_details=conductor_details , trips=trips )
 
 
 @views.route('/admin-fleet-management', methods=['GET', 'POST'])
@@ -136,26 +141,47 @@ def week_book():
     thursday = data["thursday"]
     friday = data["friday"]
     print(data)
+    working_day_run = Site_settings.query.filter_by(key="working_day_run").first()
     if week_starting_date:
         date = week_starting_date.split("-")
         date = datetime.datetime(int(date[0]),int(date[1]),int(date[2]))
         if monday :
             create_trip( date+datetime.timedelta(days=1))
+            working_day_run.value = int(working_day_run.value)+1
         if tuesday :
             create_trip( date+datetime.timedelta(days=2))
+            working_day_run.value = int(working_day_run.value)+1
         if wednesday :
             create_trip( date+datetime.timedelta(days=3))
+            working_day_run.value = int(working_day_run.value)+1
         if thursday :
             create_trip( date+datetime.timedelta(days=4))
+            working_day_run.value = int(working_day_run.value)+1
         if friday :
             create_trip( date+datetime.timedelta(days=5))
+            working_day_run.value = int(working_day_run.value)+1
+        db.session.commit()
        
     return jsonify({})
 
 def create_trip(date):
     new = Working_day(date = date.strftime("%x") , trips_created = "N" , week_day = date.strftime("%a"))
     db.session.add(new)
+
+@views.route('utility/create-trips' , methods = ['POST' , 'GET'])
+@login_required
+def create_trips():
+    data = json.loads(request.data)
+    working_day = data["working_day"]
+    route_id = data["route_id"]
+    conductor_id=data["conductor_id"]
+    bus_id = data["bus_id"]
+    new_trip_M = Trips(working_day=working_day, route_id=route_id,conductor_id=conductor_id,bus_id= bus_id,session="M",current_phase="",start_time="XX:YY:ZZ" ,end_time  = "XX:YY:ZZ" , status = "CREATED" )
+    new_trip_E = Trips(working_day=working_day, route_id=route_id,conductor_id=conductor_id,bus_id= bus_id,session="E",current_phase="",start_time="XX:YY:ZZ",end_time  = "XX:YY:ZZ" , status = "CREATED" )
+    db.session.add(new_trip_M)
+    db.session.add(new_trip_E)
     db.session.commit()
+    return jsonify({})
 
 
 

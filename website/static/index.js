@@ -35,6 +35,24 @@ if (document.getElementById("friday").checked)
 }
 
 
+
+
+
+function create_trips(){
+  let working_day = document.getElementById("working_day").value
+  let route_id = document.getElementById("route_id").value
+  let conductor_id =  document.getElementById("conductor_id").value
+  let bus_id =  document.getElementById("bus_id").value
+  fetch("utility/create-trips",
+  {
+    method:"POST",
+    body : JSON.stringify({working_day : working_day , route_id:route_id, conductor_id:conductor_id , bus_id : bus_id
+     })
+  })
+}
+
+
+
 function test_js(trip_id , a) 
 {
   console.log(trip_id);

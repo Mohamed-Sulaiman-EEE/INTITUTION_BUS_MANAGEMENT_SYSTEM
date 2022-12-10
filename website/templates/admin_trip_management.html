@@ -4,90 +4,163 @@
 {% block content %}
 <div align="centre" class = "container">
 <!--Working day table-->
-<div>
-    <h1 align = "center">Working Day</h1>
-    <!-- DETAILS-->
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th scope="col" ><b>Working Day </b></th>
-        <th scope="col"><b>Date</b></th>
-        <th scope="col"><b>Week Day</b></th>
-        <th scope="col"><b>Trips Status</b></th>
-      </tr>
-    </thead>
+  <div >
+      <h1 align = "center">Working Day</h1>
+      <!-- DETAILS-->
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col" ><b>Working Day </b></th>
+          <th scope="col"><b>Date</b></th>
+          <th scope="col"><b>Week Day</b></th>
+          <th scope="col"><b>Trips Status</b></th>
+        </tr>
+      </thead>
+        
+      <tbody>
+      {%if working_days%}
+        {%for w in  working_days %}
+        <tr>
+          <th>{{w.day}}</th>
+          <th>{{w.date}}</th>
+          <th>{{w.week_day}}</th>        
+          {%if w.trips_created =="N" %}
+          <th class = "btn-danger" >Not Created</th>
+          {%endif%}
+          {%if w.trips_created =="Y"%}
+          <th class="btn-success">Created</th>
+          {%endif%}
+
+        </tr>
+        {%endfor%}
+        {%endif%}
+      </tbody>
+    </table>
+
+  </div>
+
+<!--Week Book form-->
+  <div class ="card" style="width: 25rem;background: rgb(113, 137, 209);margin-left: 5px;padding-left: 5px;display: inline-block;" >
+  <form method="POST">
+    <h1 align="center">Week Book</h3>
       
-    <tbody>
-    {%if working_days%}
-      {%for w in  working_days %}
-      <tr>
-        <th>{{w.day}}</th>
-        <th>{{w.date}}</th>
-        <th>{{w.week_day}}</th>        
-        {%if w.trips_created =="N" %}
-        <th class = "btn-danger" >Not Created</th>
-        {%endif%}
-        {%if w.trips_created =="Y"%}
-        <th class="btn-success">Created</th>
-        {%endif%}
+    <div class="form-group">
+      <label for="Week starting date" style="font-size: larger;">Week Starting Date</label>
+      <input
+        type="date"
+        class="form-control"
+        id="week_starting_day"
+        name="email"
+        placeholder="Enter email"
+      />
+    </div>
 
-      </tr>
-      {%endfor%}
-      {%endif%}
-    </tbody>
-  </table>
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" value="0" checked  id="monday">
+      <label class="form-check-label" for="flexCheckDefault">Monday</label>
+    </div>
 
-</div>
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" value="0"  checked id="tuesday">
+      <label class="form-check-label" for="flexCheckDefault">Tuesday</label>
+    </div>
 
-<form method="POST">
-  <h1 align="center">Week Book</h3>
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" value="0" checked id="wednesday">
+      <label class="form-check-label" for="flexCheckDefault">Wednesday</label>
+    </div>
+
     
-  <div class="form-group">
-    <label for="week starting date">Week Starting Date</label>
-    <input
-      type="date"
-      class="form-control"
-      id="week_starting_day"
-      name="email"
-      placeholder="Enter email"
-    />
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" value="0"  checked id="thursday">
+      <label class="form-check-label" for="flexCheckDefault">Thursday</label>
+    </div>
+
+    
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" value="0"  checked id="friday">
+      <label class="form-check-label" for="flexCheckDefault">Friday</label>
+    </div>
+
+
+    <br />
+    <button  class="btn btn-success btn-lg" onclick="week_book()" > Create Working Days</button>
+  </form>
   </div>
 
-  <div class="form-check">
-    <input class="form-check-input" type="checkbox" value="0" checked  id="monday">
-    <label class="form-check-label" for="flexCheckDefault">Monday</label>
-  </div>
-
-  <div class="form-check">
-    <input class="form-check-input" type="checkbox" value="0"  checked id="tuesday">
-    <label class="form-check-label" for="flexCheckDefault">Tuesday</label>
-  </div>
-
-  <div class="form-check">
-    <input class="form-check-input" type="checkbox" value="0" checked id="wednesday">
-    <label class="form-check-label" for="flexCheckDefault">Wednesday</label>
-  </div>
 
   
-  <div class="form-check">
-    <input class="form-check-input" type="checkbox" value="0"  checked id="thursday">
-    <label class="form-check-label" for="flexCheckDefault">Thursday</label>
+<!--CREATE TRIP FORMs-->
+<div class ="card" style="width: 30rem;background: rgb(239, 78, 201);margin-left: 20px;padding-left: 5px;display: inline-block;" >
+  <form method="POST">
+    <h1 align="center">Trip Book</h3>
+      
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col"><b>Working Day</b></th>
+            <th scope="col"><b>Route ID</b></th>
+            <th scope="col"><b>Conductor ID</b></th>
+            <th scope="col"><b>Bus ID</b></th>
+          </tr>
+        </thead>
+          
+        <tbody>
+          
+          <tr>
+            <th>
+              <select class="form-select btn-danger" aria-label="Default select example" id = "working_day">
+                {%for w in working_days%}
+                {%if w.trips_created == "N" %}
+                <option value="{{w.day}}" style="width: 10rem ;"  >{{w.day}}</option>
+                {%endif%}
+                {%endfor%}
+              </select> 
+            </th>
+
+            <th >
+              <select class="form-select btn-danger" aria-label="Default select example" id = "route_id">
+              {%for r in routes%}
+                <option value="{{r.id}}">{{r.id}}</option>
+              {%endfor%}
+              </select> 
+              
+            </th>
+
+            <th >
+              <select class="form-select btn-danger" aria-label="Default select example" id = "conductor_id">
+                {%for c in conductor_details%}
+                <option value="{{c.conductor_id}}" style="width:fit-content;">{{c.conductor_id}}</option>
+                {%endfor%}
+              </select> 
+
+            </th>
+            <th >
+              <select class="form-select btn-danger" aria-label="Default select example" id = "bus_id">
+                {%for b in bus_data%}
+                <option value="{{b.no}}" style="width:fit-content ;">{{b.no}}</option>
+                {%endfor%}
+              </select> 
+
+            </th>
+          </tr>
+         
+        
+        </tbody>
+      </table>
+
+    
+
+    <br />
+    <button  class="btn btn-warning btn-lg" onclick="create_trips()" > Create Trip</button>
+  </form>
   </div>
 
-  
-  <div class="form-check">
-    <input class="form-check-input" type="checkbox" value="0"  checked id="friday">
-    <label class="form-check-label" for="flexCheckDefault">Friday</label>
-  </div>
-
-
-  <br />
-  <button  class="btn btn-primary" onclick="week_book()" > Create Working Days</button>
-</form>
 
 </div>
 
 
+<!--TRIPS TABLE-->
 <div align="centre" class = "container">
 
   <div>
@@ -101,19 +174,24 @@
           <th scope="col"><b>Session</b></th>
           <th scope="col"><b>Route ID</b></th>
           <th scope="col"><b>Conductor ID</b></th>
-          <th scope="col"><b>Bus ID</b></th>
-          <th scope="col"><b>Route ID</b></th>
+          <th scope="col"><b>Bus No</b></th>
+          <th scope="col"><b>STATUS</b></th>
+          <th scope="col"><b>Current Phase</b></th>
         </tr>
       </thead>
         
       <tbody>
-      {%if working_days%}
-        {%for w in  working_days %}
+      {%if trips%}
+        {%for t in  trips %}
         <tr>
-          <th>{{w.day}}</th>
-          <th>{{w.date}}</th>
-          <th>{{w.week_day}}</th>
-          <th>{{w.trips_created}}</th>
+          <th>{{t.trip_id}}</th>
+          <th>{{t.working_day}}</th>
+          <th>{{t.session}}</th>
+          <th>{{t.route_id}}</th>
+          <th>{{t.conductor_id}}</th>
+          <th>{{t.bus_id}}</th>
+          <th>{{t.status}}</th>
+          <th>{{t.current_phase}}</th>
         </tr>
         {%endfor%}
         {%endif%}
@@ -123,7 +201,7 @@
   </div>
   
   <a class="btn  btn-primary " href="/" role= "button"  >Button</a><br>
-  </div>
+</div>
   
 
 {% endblock %}
