@@ -28,7 +28,9 @@ class Conductor_details(db.Model , UserMixin):
 
 
 class Route(db.Model):
-    id = db.Column(db.String(1), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    route_id = db.Column(db.String(1))  
+    session = db.Column(db.String(1)) 
     start = db.Column(db.String(10))
     end = db.Column(db.String(10))
     phases = db.Column(db.String(250))

@@ -40,7 +40,7 @@
   </div>
 
 <!--Week Book form-->
-  <div class ="card" style="width: 25rem;background: rgb(113, 137, 209);margin-left: 5px;padding-left: 5px;display: inline-block;" >
+  <div class ="card" style="width: 25rem;background: rgb(146, 170, 243);margin-left: 5px;padding-left: 5px;padding-right: 5px;; display: inline-block;" >
   <form method="POST">
     <h1 align="center">Week Book</h3>
       
@@ -91,7 +91,7 @@
 
   
 <!--CREATE TRIP FORMs-->
-<div class ="card" style="width: 30rem;background: rgb(239, 78, 201);margin-left: 20px;padding-left: 5px;display: inline-block;" >
+<div class ="card" style="width: 30rem;background: rgb(236, 163, 219);margin-left: 20px;padding-left: 5px;display: inline-block;" >
   <form method="POST">
     <h1 align="center">Trip Book</h3>
       
@@ -121,7 +121,7 @@
             <th >
               <select class="form-select btn-danger" aria-label="Default select example" id = "route_id">
               {%for r in routes%}
-                <option value="{{r.id}}">{{r.id}}</option>
+                <option value="{{r.id}}">{{r.route_id}}</option>
               {%endfor%}
               </select> 
               

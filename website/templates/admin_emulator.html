@@ -3,5 +3,16 @@
 
 {% block content %}
 
+<div>
+<h1>No of Sample sent = <span id = "count">0</span></h1>
 
+    <button  class = "btn btn-primary" onclick="refreshGPS()">GPS UPDATE</button>
+    <button  class = "btn btn-danger" onclick="setInterval(start,1000)">START</button>
+
+
+</div>
+<br>
+    
+<button  class = "btn btn-danger" onclick="check_rasberry()">RASBERYY PI</a>
 {% endblock %}
+

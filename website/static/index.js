@@ -52,6 +52,33 @@ function create_trips(){
 }
 
 
+function update_gps()
+{
+  let lat = 808;
+  let long =001 ; 
+  let bus_id = 1;
+  fetch("api/update-gps",
+  {
+    method:"POST",
+    body : JSON.stringify({ "bus_id" : bus_id , "lat" : lat , "long"  : long })
+  })
+}
+
+
+
+
+
+function check_rasberry()
+{
+  fetch("api/check_rasberry",
+  {
+    method:"POST",
+    body : JSON.stringify({})
+  })
+}
+
+
+
 
 function test_js(trip_id , a) 
 {
@@ -81,23 +108,27 @@ function refreshGPS() {
 }
 
 function showPosition(position) {
+  let bus_id = 1
   let gps = position.coords.latitude +"," + position.coords.longitude;
   let lat = position.coords.latitude;
   let long = position.coords.longitude;
-  fetch("/conductor-utility-refresh-gps", 
+  fetch("/api/update-gps", 
   {
     method: "POST",
-    body: JSON.stringify({ gps : gps , lat :lat , long:  long }),
+    body: JSON.stringify({ bus_id :bus_id , gps : gps , lat :lat , long:  long }),
   }
-  ).then((_res) => {
-    window.location.href = "/conductor-current-trip";
-  });
+  )
 }
 
 //-------- REFRESH GPS-----------
 
 
-
+function start()
+{
+  refreshGPS();
+  let x = document.getElementById("count")
+  x.innerHTML= parseInt(x.innerHTML) + 1
+}
 
 
 

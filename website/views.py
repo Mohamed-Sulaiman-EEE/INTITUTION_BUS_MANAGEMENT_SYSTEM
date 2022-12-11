@@ -188,7 +188,51 @@ def create_trips():
 #...................................API.................................................
 
 
+@views.route('api/update-gps' , methods = ['POST' , 'GET'])
+def update_gps():
+    data = json.loads(request.data)
+    #print(data)
+    bus_id = int(data["bus_id"])
+    bus = Bus_data.query.filter_by(no = bus_id).first()
+    bus.lat = data["lat"]
+    bus.long = data["long"]
+    db.session.commit()
+    # DO ALL STUFF AFTER GPS UPDATE
+    status = "OK"
+    check_phase(bus_id)
+    return jsonify({"status":status})
 
+def check_phase(bus_id):
+    bus = Bus_data.query.filter_by(no = bus_id).first()
+    working_day = Site_settings.query.filter_by(key="current_working_day").first().value
+    print(">>>>>>>>>>>>>" , working_day)
+    current_trip = Trips.query.filter_by(working_day = working_day,bus_id=bus_id).all()
+    print(current_trip[1 ].session)
+
+
+
+
+
+
+
+
+@views.route('api/check_rasberry' , methods = ["POST"])
+def check_rasberry():
+    url = "  https://5d83-117-217-218-202.ngrok.io/api/update-gps"
+    #data = json({lat:55, long:56})
+    lat = 5546
+    long = 58
+    bus_id = 1
+    d=dict()
+    d = {"bus_id" : bus_id, "lat":lat , "long":long}
+    reply = requests.post(url=url , json = d )
+    return jsonify({})
+
+
+@views.route('api/update-rfid' , methods = ['POST' , 'GET'])
+@login_required
+def update_rfid():
+    pass
 
 '''
 
