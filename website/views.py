@@ -196,20 +196,59 @@ def update_gps():
     bus = Bus_data.query.filter_by(no = bus_id).first()
     bus.lat = data["lat"]
     bus.long = data["long"]
+    bus.gps = data["gps"]
     db.session.commit()
     # DO ALL STUFF AFTER GPS UPDATE
     status = "OK"
+
     check_phase(bus_id)
+
     return jsonify({"status":status})
 
 def check_phase(bus_id):
     bus = Bus_data.query.filter_by(no = bus_id).first()
     working_day = Site_settings.query.filter_by(key="current_working_day").first().value
-    print(">>>>>>>>>>>>>" , working_day)
     current_trip = Trips.query.filter_by(working_day = working_day,bus_id=bus_id).all()
-    print(current_trip[1 ].session)
+    query = current_trip[0].status
+    if  query == 'CREATED':
+        trip = current_trip[0]
+    else:
+        trip=current_trip[1]
+    
+    route = Route.query.filter_by(route_id= trip.route_id).first()
+    phases = route.phases
+    phases = phases.split(",")
+    curr_phase = trip.current_phase
+    curr_index = phases.index(curr_phase)
 
 
+
+    print(phases,route,curr_phase,curr_index)
+
+    if curr_index != len(phases)-1:
+        nxt_phase = phases[curr_index+1]
+        curr_position = Location_reference.query.filter_by(name=curr_phase).first()
+        nxt_position = Location_reference.query.filter_by(name=nxt_phase).first()
+        if isOnRadius(curr_position.lat , curr_position.long, nxt_position.lat,nxt_position.long):
+            trip.current_phase = nxt_phase
+            db.session.commit()
+            print(">>>>>>PHASE UPDATED SUCCESSFULLY !!!!") 
+        else:
+            print(">>>> NO UPDATES !!! \n")
+    else:
+        print("Final phase")
+
+def isOnRadius(curr_lat,curr_long, nxt_lat,nxt_long):
+    limit = 0.001
+    curr_lat=float(curr_lat)
+    curr_long=float(curr_long)
+    nxt_lat=float(nxt_lat)
+    nxt_long=float(nxt_long)
+
+    if abs(curr_lat-nxt_lat) <= limit and abs(curr_long-nxt_long) <=limit:
+        return True
+    else: 
+        return False
 
 
 
