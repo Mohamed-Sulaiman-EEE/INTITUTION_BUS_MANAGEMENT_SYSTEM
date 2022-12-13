@@ -52,15 +52,18 @@ function create_trips(){
 }
 
 
-function update_gps()
+function check_gps()
 {
-  let lat = 808;
-  let long =001 ; 
+  let lat = document.getElementById("lat").value;
+  let long = document.getElementById("long").value;
+  let gps = lat + "," + long;
+  lat = parseFloat(lat);
+  long = parseFloat(long);
   let bus_id = 1;
   fetch("api/update-gps",
   {
     method:"POST",
-    body : JSON.stringify({ "bus_id" : bus_id , "lat" : lat , "long"  : long })
+    body : JSON.stringify({ "bus_id" : bus_id , "lat" : lat , "long"  : long , "gps" : gps })
   })
 }
 
@@ -131,7 +134,18 @@ function start()
 }
 
 
+function checkRFID()
+{
+  let rfid = document.getElementById("rfid").value
+  let bus_id = document.getElementById("bus_id").value
+  fetch("/api/update-rfid", 
+  {
+    method: "POST",
+    body: JSON.stringify({ bus_id :bus_id , rfid:rfid }),
+  }
+  )
 
+}
 
 function newTab(lat , long){
   let base_url = "https://www.google.com/maps/search/?api=1&query=";

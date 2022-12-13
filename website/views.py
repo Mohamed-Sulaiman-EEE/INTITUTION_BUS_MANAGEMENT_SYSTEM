@@ -133,6 +133,9 @@ def admin_emulator():
 @views.route('utility/week-book' , methods = ['POST','GET'])
 @login_required
 def week_book():
+    '''
+    Function to create working days in batch of 5 
+    '''
     data = json.loads(request.data)
     week_starting_date = data["week_starting_date"]
     monday = data["monday"]
@@ -198,6 +201,15 @@ def update_gps():
     bus.long = data["long"]
     bus.gps = data["gps"]
     db.session.commit()
+
+    def logGPS():
+        f = open("logGPS.txt", "a")
+        D = datetime.datetime.now().strftime("%X")
+        f.write(D + ": ")
+        f.write(data["gps"])
+        f.write("\n")
+    logGPS()
+
     # DO ALL STUFF AFTER GPS UPDATE
     status = "OK"
 
@@ -222,14 +234,11 @@ def check_phase(bus_id):
     curr_index = phases.index(curr_phase)
 
 
-
-    print(phases,route,curr_phase,curr_index)
-
     if curr_index != len(phases)-1:
         nxt_phase = phases[curr_index+1]
-        curr_position = Location_reference.query.filter_by(name=curr_phase).first()
+        #curr_position = Location_reference.query.filter_by(name=curr_phase).first()
         nxt_position = Location_reference.query.filter_by(name=nxt_phase).first()
-        if isOnRadius(curr_position.lat , curr_position.long, nxt_position.lat,nxt_position.long):
+        if isOnRadius(bus.lat , bus.long , nxt_position.lat,nxt_position.long):
             trip.current_phase = nxt_phase
             db.session.commit()
             print(">>>>>>PHASE UPDATED SUCCESSFULLY !!!!") 
@@ -239,20 +248,22 @@ def check_phase(bus_id):
         print("Final phase")
 
 def isOnRadius(curr_lat,curr_long, nxt_lat,nxt_long):
-    limit = 0.001
+    limit = 0.00001
     curr_lat=float(curr_lat)
     curr_long=float(curr_long)
     nxt_lat=float(nxt_lat)
     nxt_long=float(nxt_long)
-
-    if abs(curr_lat-nxt_lat) <= limit and abs(curr_long-nxt_long) <=limit:
+    print(curr_lat , curr_long , nxt_lat , nxt_long)
+    print(abs(curr_lat-nxt_lat))
+    print(abs(curr_long-nxt_long))
+    if abs(curr_lat-nxt_lat) <= limit or abs(curr_long-nxt_long) <=limit:
         return True
     else: 
         return False
 
 
 
-
+#.........................................................................................................
 
 
 @views.route('api/check_rasberry' , methods = ["POST"])
@@ -269,9 +280,24 @@ def check_rasberry():
 
 
 @views.route('api/update-rfid' , methods = ['POST' , 'GET'])
-@login_required
 def update_rfid():
-    pass
+    data = json.loads(request.data)
+    print(data)
+    working_day = Site_settings.query.filter_by(key="current_working_day").first().value
+    bus_id = int(data["bus_id"])
+    rfid = data["rfid"]
+    trip= Trips.query.filter_by(bus_id=bus_id,working_day=working_day).first()
+    
+    print(trip.route_id)
+
+
+
+
+
+
+
+
+
 
 '''
 
