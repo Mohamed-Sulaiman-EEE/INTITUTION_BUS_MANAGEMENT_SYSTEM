@@ -2,6 +2,26 @@
 {% block title %} Admin Home {% endblock %} 
 
 {% block content %}
+<!-- WORKING DAY DASHBOARD-->
+<div  style="background-color: rgb(243, 148, 70);align-content: center ;text-align: center ;margin-left: 5px;margin-right: 5px;padding-left: 5px;padding-right:5px ; padding-bottom : 10px;border-radius: 50px;">  
+  <h1><b>WORKING DAY</h1></b>
+  <h2>DAY  <span class="badge bg-warning">{{w.day}}</span></h2>
+  <h2>DATE <span class="badge bg-warning">{{w.date}}</span></h2>
+  <h2>WEEK DAY  <span class="badge bg-warning">{{w.week_day}}</span></h2>
+    
+  <button  class = "btn btn-danger" onclick="increment_working_day()"><b>
+    <span>
+    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-calendar-plus-fill" viewBox="0 0 16 16">
+      <path d="M4 .5a.5.5 0 0 0-1 0V1H2a2 2 0 0 0-2 2v1h16V3a2 2 0 0 0-2-2h-1V.5a.5.5 0 0 0-1 0V1H4V.5zM16 14V5H0v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2zM8.5 8.5V10H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V11H6a.5.5 0 0 1 0-1h1.5V8.5a.5.5 0 0 1 1 0z"/>
+    </svg>
+  </span>&nbsp;WorkingDay++
+</b></button>
+</div>
+
+<!-- TRIP DAHSBOARD-->
+<div>
+  
+</div>
 
 
 <!-- DETAILS-->
@@ -49,4 +69,7 @@
     {%endfor%}
 </div>
 
+<br>
+<iframe src="{{ url_for("views.admin_emulator")}}" height="200" width="100%" title="Iframe Example"></iframe>
+<br>
 {% endblock %}

@@ -3,13 +3,43 @@
 
 {% block content %}
 
-<!--CURRENT WORKING DAY-->
 
-
-
+<!-- WORKING DAY DASHBOARD-->
+<div  style="background-color: rgb(243, 148, 70);align-content: center ;text-align: center ;margin-top: 10px ; margin-left: 5px;margin-right: 5px;padding-left: 5px;padding-right:5px ; padding-bottom : 10px;border-radius: 50px;">  
+    <h1><b>WORKING DAY</h1></b>
+    <h2>DAY  <span class="badge bg-warning">{{w.day}}</span></h2>
+    <h2>DATE <span class="badge bg-warning">{{w.date}}</span></h2>
+    <h2>WEEK DAY  <span class="badge bg-warning">{{w.week_day}}</span></h2>
+      
+</div>
+  
 <!--TRIP DETAILS AND PROGRESS-->
+{%for t in trips%}
+
+<div  style="background-color: rgb(94, 169, 255);align-content: center ;text-align: center ;margin-top: 10px ; margin-left: 5px;margin-right: 5px;padding-left: 5px;padding-right:5px ; padding-bottom : 10px;border-radius: 50px;">  
+    <h2>DAY  <span class="badge bg-warning">{{t.trip_id}}</span></h2>
+    <h2>DAY  <span class="badge bg-warning">{{t.session}}</span></h2>
+    <h2>DAY  <span class="badge bg-warning">{{t.bus_id}}</span></h2>
+    <h2>DAY  <span class="badge bg-warning">{{t.current_phase}}</span></h2>
+
+    <h2>Start Time  <span class="badge bg-warning">{{t.start_time}}</span></h2>
+    <h2>End Time  <span class="badge bg-warning">{{t.end_time}}</span></h2>
+
+    <h3>{{routes[0].start}}</h3>
+    <h3>{{routes[0].end}}</h3>
+    <h3>{{routes[0].phases}}</h3>
 
 
+</div>
+{%endfor%}
+
+
+
+    
+
+   
+
+</div>
 
 
 {% endblock %}

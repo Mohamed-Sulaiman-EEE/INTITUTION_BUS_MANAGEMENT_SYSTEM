@@ -147,6 +147,19 @@ function checkRFID()
 
 }
 
+function increment_working_day()
+{
+  fetch("/utility/increment-working-day", 
+  {
+    method: "POST",
+    body: JSON.stringify({}),
+  }).then((_res) => {
+    window.location.href = "/admin-home";
+  });;
+}
+
+
+
 function newTab(lat , long){
   let base_url = "https://www.google.com/maps/search/?api=1&query=";
   let target_url = base_url + lat + "," + long;

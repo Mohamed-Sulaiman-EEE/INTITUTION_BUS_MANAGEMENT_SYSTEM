@@ -28,7 +28,13 @@ def index():
 @views.route('/student-home', methods=['GET', 'POST'])
 @login_required
 def student_home():
-    return render_template("student_home.html" , user = current_user)
+    w = Site_settings.query.filter_by(key="current_working_day").first().value
+    working_day = Working_day.query.filter_by(day=w).first()
+    student_details = Student_details.query.filter_by(id = current_user.id).first()
+    routes = Route.query.filter_by(route_id = student_details.route).all()
+    trips = Trips.query.filter_by(working_day=w , route_id = student_details.route).all()
+
+    return render_template("student_home.html" , user = current_user , w = working_day , trips = trips, routes=routes)
 
 
 
@@ -85,7 +91,10 @@ def conductor_trip_history():
 @views.route('/admin-home', methods=['GET', 'POST'])
 @login_required
 def admin_home():
-    return render_template("admin_home.html" , user = current_user )
+    working_day = Site_settings.query.filter_by(key="current_working_day").first().value
+    w = Working_day.query.filter_by(day=working_day).first()
+
+    return render_template("admin_home.html" , user = current_user, w = w )
 
 
 @views.route('/admin-user-management', methods=['GET', 'POST'])
@@ -179,15 +188,26 @@ def create_trips():
     route_id = data["route_id"]
     conductor_id=data["conductor_id"]
     bus_id = data["bus_id"]
-    new_trip_M = Trips(working_day=working_day, route_id=route_id,conductor_id=conductor_id,bus_id= bus_id,session="M",current_phase="",start_time="XX:YY:ZZ" ,end_time  = "XX:YY:ZZ" , status = "CREATED" )
-    new_trip_E = Trips(working_day=working_day, route_id=route_id,conductor_id=conductor_id,bus_id= bus_id,session="E",current_phase="",start_time="XX:YY:ZZ",end_time  = "XX:YY:ZZ" , status = "CREATED" )
+    route1= Route.query.filter_by(route_id = route_id , session = "M").first()
+    route2= Route.query.filter_by(route_id = route_id , session = "E").first()
+    start1 = route1.start
+    start2 = route2.start
+    print(start1,start2)
+    new_trip_M = Trips(working_day=working_day, route_id=route_id,conductor_id=conductor_id,bus_id= bus_id,session="M",current_phase=start1,start_time="XX:YY:ZZ" ,end_time  = "XX:YY:ZZ" , status = "CREATED" )
+    new_trip_E = Trips(working_day=working_day, route_id=route_id,conductor_id=conductor_id,bus_id= bus_id,session="E",current_phase=start2,start_time="XX:YY:ZZ",end_time  = "XX:YY:ZZ" , status = "CREATED" )
     db.session.add(new_trip_M)
     db.session.add(new_trip_E)
     db.session.commit()
     return jsonify({})
 
-
-
+@views.route('utility/increment-working-day' ,methods=["POST"])
+def increment_working_day():
+    working_day = Site_settings.query.filter_by(key="current_working_day").first()
+    v = int(working_day.value)
+    working_day.value = v + 1
+    db.session.commit()
+    
+    return jsonify({})
 #...................................API.................................................
 
 
@@ -221,34 +241,41 @@ def check_phase(bus_id):
     bus = Bus_data.query.filter_by(no = bus_id).first()
     working_day = Site_settings.query.filter_by(key="current_working_day").first().value
     current_trip = Trips.query.filter_by(working_day = working_day,bus_id=bus_id).all()
-    query = current_trip[0].status
-    if  query == 'CREATED':
+    queryM = current_trip[0].status
+    queryE = current_trip[1].status
+    if  queryM == 'INITIATED':
         trip = current_trip[0]
-    else:
+    elif queryM =="COMPLETED" and queryE =="INITIATED" :
         trip=current_trip[1]
-    
-    route = Route.query.filter_by(route_id= trip.route_id).first()
-    phases = route.phases
-    phases = phases.split(",")
-    curr_phase = trip.current_phase
-    curr_index = phases.index(curr_phase)
-
-
-    if curr_index != len(phases)-1:
-        nxt_phase = phases[curr_index+1]
-        #curr_position = Location_reference.query.filter_by(name=curr_phase).first()
-        nxt_position = Location_reference.query.filter_by(name=nxt_phase).first()
-        if isOnRadius(bus.lat , bus.long , nxt_position.lat,nxt_position.long):
-            trip.current_phase = nxt_phase
-            db.session.commit()
-            print(">>>>>>PHASE UPDATED SUCCESSFULLY !!!!") 
-        else:
-            print(">>>> NO UPDATES !!! \n")
     else:
-        print("Final phase")
+        trip = None
+
+    if trip :
+        route = Route.query.filter_by(route_id= trip.route_id).first()
+        phases = route.phases
+        phases = phases.split(",")
+        curr_phase = trip.current_phase
+        curr_index = phases.index(curr_phase)
+
+
+        if curr_index != len(phases)-1:
+            nxt_phase = phases[curr_index+1]
+            #curr_position = Location_reference.query.filter_by(name=curr_phase).first()
+            nxt_position = Location_reference.query.filter_by(name=nxt_phase).first()
+            if isOnRadius(bus.lat , bus.long , nxt_position.lat,nxt_position.long):
+                trip.current_phase = nxt_phase
+                db.session.commit()
+                print(">>>>>>PHASE UPDATED SUCCESSFULLY !!!!") 
+            else:
+                print(">>>> NO UPDATES !!! \n")
+        else:
+            trip.status = "COMPLETED"
+            db.session.commit()
+    else:
+        print(">>>> NO TRIP ACTIVE")
 
 def isOnRadius(curr_lat,curr_long, nxt_lat,nxt_long):
-    limit = 0.00001
+    limit = 0.00000001
     curr_lat=float(curr_lat)
     curr_long=float(curr_long)
     nxt_lat=float(nxt_lat)
@@ -282,13 +309,33 @@ def check_rasberry():
 @views.route('api/update-rfid' , methods = ['POST' , 'GET'])
 def update_rfid():
     data = json.loads(request.data)
-    print(data)
     working_day = Site_settings.query.filter_by(key="current_working_day").first().value
     bus_id = int(data["bus_id"])
     rfid = data["rfid"]
-    trip= Trips.query.filter_by(bus_id=bus_id,working_day=working_day).first()
-    
-    print(trip.route_id)
+    current_trip = Trips.query.filter_by(working_day = working_day,bus_id=bus_id).all()
+    queryM = current_trip[0].status
+    queryE = current_trip[1].status
+    if  queryM != 'COMPLETED':
+        trip = current_trip[0]
+    elif queryM == "COMPLETED"  :
+        trip=current_trip[1]
+    elif queryE == "COMPLETED" and queryM=="COMPLETED":
+        trip = None
+    if trip :
+        user = User.query.filter_by(rfid_number = rfid).first()
+        if user.type == "C" or user.type == "A":
+            if trip.status == "CREATED":
+                trip.status = "INITIATED"
+                db.session.commit()
+            pass
+        else:
+
+            print("STUDENT FUNCTION")
+
+
+
+
+            
 
 
 
