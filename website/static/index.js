@@ -71,17 +71,6 @@ function check_gps()
 
 
 
-function check_rasberry()
-{
-  fetch("api/check_rasberry",
-  {
-    method:"POST",
-    body : JSON.stringify({})
-  })
-}
-
-
-
 
 function test_js(trip_id , a) 
 {

@@ -33,8 +33,11 @@ def student_home():
     student_details = Student_details.query.filter_by(id = current_user.id).first()
     routes = Route.query.filter_by(route_id = student_details.route).all()
     trips = Trips.query.filter_by(working_day=w , route_id = student_details.route).all()
+    phases1 = routes[0].phases.split(",")
+    phases2 = routes[1].phases.split(",")
 
-    return render_template("student_home.html" , user = current_user , w = working_day , trips = trips, routes=routes)
+
+    return render_template("student_home.html" , user = current_user , w = working_day , t1=trips[0] , t2=trips[1], r1=routes[0] , r2=routes[1], p1 = phases1 , p2=phases2)
 
 
 
@@ -197,7 +200,10 @@ def create_trips():
     new_trip_E = Trips(working_day=working_day, route_id=route_id,conductor_id=conductor_id,bus_id= bus_id,session="E",current_phase=start2,start_time="XX:YY:ZZ",end_time  = "XX:YY:ZZ" , status = "CREATED" )
     db.session.add(new_trip_M)
     db.session.add(new_trip_E)
+    w = Working_day.query.filter_by(day=working_day).first()
+    w.trips_created="Y"
     db.session.commit()
+    
     return jsonify({})
 
 @views.route('utility/increment-working-day' ,methods=["POST"])
@@ -208,6 +214,8 @@ def increment_working_day():
     db.session.commit()
     
     return jsonify({})
+
+
 #...................................API.................................................
 
 
@@ -226,8 +234,11 @@ def update_gps():
         f = open("logGPS.txt", "a")
         D = datetime.datetime.now().strftime("%X")
         f.write(D + ": ")
+        f.write(str(bus_id))
+        f.write("/ ")
         f.write(data["gps"])
         f.write("\n")
+        f.close()
     logGPS()
 
     # DO ALL STUFF AFTER GPS UPDATE
@@ -270,6 +281,8 @@ def check_phase(bus_id):
                 print(">>>> NO UPDATES !!! \n")
         else:
             trip.status = "COMPLETED"
+            d = datetime.datetime.now().strftime("%X")
+            trip.end_time = d
             db.session.commit()
     else:
         print(">>>> NO TRIP ACTIVE")
@@ -293,25 +306,24 @@ def isOnRadius(curr_lat,curr_long, nxt_lat,nxt_long):
 #.........................................................................................................
 
 
-@views.route('api/check_rasberry' , methods = ["POST"])
-def check_rasberry():
-    url = "  https://5d83-117-217-218-202.ngrok.io/api/update-gps"
-    #data = json({lat:55, long:56})
-    lat = 5546
-    long = 58
-    bus_id = 1
-    d=dict()
-    d = {"bus_id" : bus_id, "lat":lat , "long":long}
-    reply = requests.post(url=url , json = d )
-    return jsonify({})
-
-
 @views.route('api/update-rfid' , methods = ['POST' , 'GET'])
 def update_rfid():
     data = json.loads(request.data)
     working_day = Site_settings.query.filter_by(key="current_working_day").first().value
     bus_id = int(data["bus_id"])
     rfid = data["rfid"]
+    print(data)
+    
+    def logRFID():
+        f = open("logRFID.txt", "a")
+        D = datetime.datetime.now().strftime("%X")
+        f.write(D + ": ")
+        f.write(data["bus_id"])
+        f.write("/ ")
+        f.write(data["rfid"])
+        f.write("\n")
+        f.close()
+    logRFID()
     current_trip = Trips.query.filter_by(working_day = working_day,bus_id=bus_id).all()
     queryM = current_trip[0].status
     queryE = current_trip[1].status
@@ -324,13 +336,20 @@ def update_rfid():
     if trip :
         user = User.query.filter_by(rfid_number = rfid).first()
         if user.type == "C" or user.type == "A":
+            print("fck")
+            d = datetime.datetime.now().strftime("%X")
+            print(d)
             if trip.status == "CREATED":
                 trip.status = "INITIATED"
+                
+                trip.start_time = d 
                 db.session.commit()
-            pass
+            
         else:
 
             print("STUDENT FUNCTION")
+    return jsonify({})
+    
 
 
 
@@ -338,6 +357,9 @@ def update_rfid():
             
 
 
+
+
+#........................MESSAGING SERVICES......................
 
 
 
