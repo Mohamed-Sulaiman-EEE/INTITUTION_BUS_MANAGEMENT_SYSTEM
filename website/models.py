@@ -20,6 +20,13 @@ class Student_details(db.Model , UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     route = db.Column(db.String(1))
     parents_phone = db.Column(db.String(15))
+    
+    alrt_s_before_stop = db.Column(db.String(1))
+    alrt_s_stop_reached = db.Column(db.String(1))
+    alrt_s_trip_initiated = db.Column(db.String(1))
+    alrt_p_boarded_bus = db.Column(db.String(1))
+    alrt_p_before_stop = db.Column(db.String(1))
+    alrt_p_smart_alert = db.Column(db.String(1))
 
 
 class Conductor_details(db.Model , UserMixin):

@@ -16,7 +16,6 @@
 <!--TRIP DETAILS AND PROGRESS-->
 
 
-
 <div  style="align-content: center;border-radius: 50px;">
     <table class="table table-dark">
     
@@ -26,55 +25,55 @@
 
         <tr>
             <th>Trip ID</th>
-            <td style="background-color:rgb(108, 108, 108);">{{t1.trip_id}}</td>
+            <td style="background-color:rgb(108, 108, 108);">{{trip.trip_id}}</td>
             <th>Route ID</th>
-            <td style="background-color:rgb(108, 108, 108);">{{r1.route_id}}</td>    
+            <td style="background-color:rgb(108, 108, 108);">{{route.route_id}}</td>    
         </tr>
         <tr>
             <th>Session</th>
-            <td style="background-color:rgb(108, 108, 108);">{{t1.session}}</td>
+            <td style="background-color:rgb(108, 108, 108);">{{trip.session}}</td>
             <th>Bus No</th>
-            <td style="background-color:rgb(108, 108, 108);">{{t1.bus_id}}</td>    
+            <td style="background-color:rgb(108, 108, 108);">{{trip.bus_id}}</td>    
         </tr>
         <tr>
             
             <th colspan="2">
                 Trip Status
             </th>
-            {%if t1.status =="COMPLETED" %}
-            <th style="background-color:rgb(221, 44, 31);" colspan="2">{{t1.status}}</th>
+            {%if trip.status =="COMPLETED" %}
+            <th style="background-color:rgb(221, 44, 31);" colspan="2">{{trip.status}}</th>
             {%endif%}
-            {%if t1.status =="INITIATED" %}
-            <th style="background-color:rgb(66, 178, 248);" colspan="2">{{t1.status}}</th>
+            {%if trip.status =="INITIATED" %}
+            <th style="background-color:rgb(66, 178, 248);" colspan="2">{{trip.status}}</th>
             {%endif%}
-            {%if t1.status =="CREATED" %}
-            <th style="background-color:rgb(255, 237, 79);" colspan="2">{{t1.status}}</th>
+            {%if trip.status =="CREATED" %}
+            <th style="background-color:rgb(255, 237, 79);" colspan="2">{{trip.status}}</th>
             {%endif%}
             
         </tr>
         <tr>
             <th>Start Time</th>
-            <td style="background-color:rgb(108, 108, 108);">{{t1.start_time}}</td>
+            <td style="background-color:rgb(108, 108, 108);">{{trip.start_time}}</td>
             <th>End Time</th>
-            <td style="background-color:rgb(108, 108, 108);">{{t1.end_time}}</td>
+            <td style="background-color:rgb(108, 108, 108);">{{trip.end_time}}</td>
         </tr>
 
         <tr>
             <th>Starting Stop</th>
-            <td style="background-color:rgb(108, 108, 108);">{{r1.start}}</td>
+            <td style="background-color:rgb(108, 108, 108);">{{route.start}}</td>
             <th>Ending Stop</th>
-            <td style="background-color:rgb(108, 108, 108);">{{r1.end}}</td>
+            <td style="background-color:rgb(108, 108, 108);">{{route.end}}</td>
         </tr>
         <tr>
             <th colspan="2">Current Phase</th>
-            <th colspan="2" style="background-color:rgb(108, 108, 108);">{{t1.current_phase}}</th>
+            <th colspan="2" style="background-color:rgb(108, 108, 108);">{{trip.current_phase}}</th>
         </tr>
 
         <tr>
             <td></td>
             <th colspan="2">
                 <div class="card" style="background-color: rgb(207, 208, 223);margin-top: 15px;">
-                    {%for p in p1%}
+                    {%for p in phase%}
                     <h4 style="background-color: rgb(37, 73, 255); text-align: center; width: 30rem;align-self: center;border-radius: 50px;">{{p}}</h4>
                     <div align="center">
                         <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="black" class="bi bi-arrow-down" viewBox="0 0 16 16">
@@ -88,91 +87,32 @@
         </tr>
         <tr>
             <td>
-                <button class="button btn-danger" onclick="">Map View</button>
+                <button class="button btn-danger" onclick="newTab({{lat}},{{long}});">Map View</button>
 
             </td>
         </tr>
     </table>
 </div>
 
+
+
 <br>
+<!--
 
-<div  style="align-content: center;border-radius: 50px;">
-    <table class="table table-dark">
+
+
+<div class="card-sm" style="width: 100%;">
     
-            <tr>
-                <th colspan="4"><h3 align="center" width="100%">Trip Details</h3></th>
-            </tr>
+<iframe src="https://www.google.com/maps/place/9%C2%B053'02.8%22N+78%C2%B004'46.7%22E/@9.8841092,78.07965,17z/data=!3m1!4b1!4m5!3m4!1s0x0:0xe2424666a20ef073!8m2!3d9.8841092!4d78.07965"  frameborder="0" loading="lazy" width="100%" height="600" frameborder="0" scrolling="no" marginheight="0" ></iframe>
 
-        <tr>
-            <th>Trip ID</th>
-            <td style="background-color:rgb(108, 108, 108);">{{t2.trip_id}}</td>
-            <th>Route ID</th>
-            <td style="background-color:rgb(108, 108, 108);">{{r2.route_id}}</td>    
-        </tr>
-        <tr>
-            <th>Session</th>
-            <td style="background-color:rgb(108, 108, 108);">{{t2.session}}</td>
-            <th>Bus No</th>
-            <td style="background-color:rgb(108, 108, 108);">{{t2.bus_id}}</td>    
-        </tr>
-        <tr>
-            
-            <th colspan="2">
-                Trip Status
-            </th>
-            {%if t2.status =="COMPLETED" %}
-            <th style="background-color:rgb(221, 44, 31);" colspan="2">{{t2.status}}</th>
-            {%endif%}
-            {%if t2.status =="INITIATED" %}
-            <th style="background-color:rgb(66, 178, 248);" colspan="2">{{t2.status}}</th>
-            {%endif%}
-            {%if t2.status =="CREATED" %}
-            <th style="background-color:rgb(255, 237, 79);" colspan="2">{{t2.status}}</th>
-            {%endif%}
-            
-        </tr>
-        <tr>
-            <th>Start Time</th>
-            <td style="background-color:rgb(108, 108, 108);">{{t2.start_time}}</td>
-            <th>End Time</th>
-            <td style="background-color:rgb(108, 108, 108);">{{t2.end_time}}</td>
-        </tr>
 
-        <tr>
-            <th>Starting Stop</th>
-            <td style="background-color:rgb(108, 108, 108);">{{r2.start}}</td>
-            <th>Ending Stop</th>
-            <td style="background-color:rgb(108, 108, 108);">{{r2.end}}</td>
-        </tr>
-        <tr>
-            <th colspan="2">Current Phase</th>
-            <th colspan="2" style="background-color:rgb(108, 108, 108);">{{t2.current_phase}}</th>
-        </tr>
-
-        <tr>
-            <td></td>
-            <th colspan="2">
-                <div class="card" style="background-color: rgb(207, 208, 223);margin-top: 15px;">
-                    {%for p in p2%}
-                    <h4 style="background-color: rgb(37, 73, 255); text-align: center; width: 30rem;align-self: center;border-radius: 50px;">{{p}}</h4>
-                    <div align="center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="black" class="bi bi-arrow-down" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z"/>
-                        </svg>
-                    </div>
-                    {%endfor%}
-                </div>
-            </th>
-            <td></td>
-        </tr>
-    </table>
 </div>
 
 
 
-   
+<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6968.374868864621!2d78.08149211691719!3d9.883678157427493!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3b00cfc431c46a0d%3A0xb7a0664b35f95a74!2sTHIAGARAJAR%20COLLEGE%20OF%20ENGINEERING%20SUB%20POST%20POST%20OFFICE!5e0!3m2!1sen!2sin!4v1671079079592!5m2!1sen!2sin" width="400" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
 
 
+-->
 
 {% endblock %}

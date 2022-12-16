@@ -33,11 +33,24 @@ def student_home():
     student_details = Student_details.query.filter_by(id = current_user.id).first()
     routes = Route.query.filter_by(route_id = student_details.route).all()
     trips = Trips.query.filter_by(working_day=w , route_id = student_details.route).all()
-    phases1 = routes[0].phases.split(",")
-    phases2 = routes[1].phases.split(",")
+   
+    if trips:
+        if trips[0].status != "COMPLETED":
+            trip = trips[0]
+            phase = routes[0].phases.split(",")
+            route=routes[0]
+            lat=Bus_data.query.filter_by(no = trip.bus_id).first().lat
+            long=Bus_data.query.filter_by(no = trip.bus_id).first().long
+        else:
+            trip  = trips[1]
+            phase = routes[1].phases.split(",")
+            route = routes[1]
+            lat=Bus_data.query.filter_by(no = trip.bus_id).first().lat
+            long=Bus_data.query.filter_by(no = trip.bus_id).first().long
+   
 
 
-    return render_template("student_home.html" , user = current_user , w = working_day , t1=trips[0] , t2=trips[1], r1=routes[0] , r2=routes[1], p1 = phases1 , p2=phases2)
+    return render_template("student_home.html" , user = current_user , w = working_day , trip=trip , phase = phase , route=route , lat=lat,long=long)
 
 
 
@@ -53,7 +66,8 @@ def student_profile():
 @views.route('/student-notification-settings', methods=['GET', 'POST'])
 @login_required
 def student_notification_settings():
-    return render_template("student_notification_settings.html" , user = current_user)
+    sd = Student_details.query.filter_by(id=current_user.id).first()
+    return render_template("student_notification_settings.html" , user = current_user , sd = sd)
 
 
 
@@ -288,7 +302,7 @@ def check_phase(bus_id):
         print(">>>> NO TRIP ACTIVE")
 
 def isOnRadius(curr_lat,curr_long, nxt_lat,nxt_long):
-    limit = 0.00000001
+    limit = 0.007
     curr_lat=float(curr_lat)
     curr_long=float(curr_long)
     nxt_lat=float(nxt_lat)
