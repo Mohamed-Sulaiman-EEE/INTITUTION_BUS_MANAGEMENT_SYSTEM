@@ -17,6 +17,7 @@ views = Blueprint('views', __name__)
 #....................................................................................
 @views.route('/', methods=['GET', 'POST'])
 def index():
+    sendMessage(chatID= 1113524785 , message="test")
     return render_template("index.html", user=current_user)
 
 
@@ -338,6 +339,7 @@ def update_rfid():
         f.write("\n")
         f.close()
     logRFID()
+
     current_trip = Trips.query.filter_by(working_day = working_day,bus_id=bus_id).all()
     queryM = current_trip[0].status
     queryE = current_trip[1].status
@@ -350,31 +352,54 @@ def update_rfid():
     if trip :
         user = User.query.filter_by(rfid_number = rfid).first()
         if user.type == "C" or user.type == "A":
-            print("fck")
-            d = datetime.datetime.now().strftime("%X")
-            print(d)
             if trip.status == "CREATED":
                 trip.status = "INITIATED"
-                
+                db.session.commit()
+                if trip.session == "M":
+                        msg = "Trip has been initiated , \nBus no :{0}".format(trip.bus_id)
+                        students = Student_details.query.filter_by(route=trip.route_id ).all()
+                        for s in students:
+                            chatID = s.chat_id
+                            sendMessage(chatID=chatID , message = msg)
+
+                elif trip.session=="E":
+                    msg = "Trip has been initiated , \nBus will depart in 15 mins !!!\nBus No :  ".format(trip.bus_id)
+                    students = Student_details.query.filter_by(route=trip.route_id ).all()
+                    for s in students:
+                        chatID = s.chat_id
+                        sendMessage(chatID=chatID , message = msg)
+                d = datetime.datetime.now().strftime("%X")
                 trip.start_time = d 
                 db.session.commit()
             
         else:
-
             print("STUDENT FUNCTION")
     return jsonify({})
     
 
 
 
-
-            
-
-
-
-
 #........................MESSAGING SERVICES......................
 
+
+def sendMessage(chatID , message):
+    print("sendmessage called ..........")
+    apiToken = Site_settings.query.filter_by(key = "bot_token").first().value
+    apiURL = f'https://api.telegram.org/bot{apiToken}/sendMessage'
+    try:
+        response = requests.post(apiURL, json={'chat_id': chatID, 'text': message})
+        logMESSAGE(response.text)
+    except Exception as e:
+        print(e)
+    
+
+def logMESSAGE(response):
+    f = open("logMESSAGE.txt", "a")
+    D = datetime.datetime.now().strftime("%X")
+    f.write(D + ": ")
+    f.write(response)
+    f.write("\n")
+    f.close()
 
 
 

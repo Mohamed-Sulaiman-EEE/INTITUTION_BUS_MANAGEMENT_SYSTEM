@@ -18,19 +18,24 @@ send(msg=msg, chat_id=id , token=my_token)
 print("Done")
 
 '''
+
+
 import requests
 
 def send_to_telegram(message):
-    chatID = -1001657216845
-    apiToken = '5917226874:AAHQXNbwuBqirLFJutBRxekZU8O2KgtEomM'
-    chatID = '515382482'
+    chatID = '1113524785'
+    
+    apiToken = '5629522354:AAGCq4MlZJD2AX9S3Jdf2fbFO67fwYT2mGY'
+    #chatID = '1113524785'
+   
     apiURL = f'https://api.telegram.org/bot{apiToken}/sendMessage'
 
     try:
         response = requests.post(apiURL, json={'chat_id': chatID, 'text': message})
         print(response.text)
+
     except Exception as e:
         print(e)
 
-send_to_telegram("Hello from Python!")
-
+send_to_telegram("fck u frm me")
+print("done")
