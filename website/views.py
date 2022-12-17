@@ -17,7 +17,7 @@ views = Blueprint('views', __name__)
 #....................................................................................
 @views.route('/', methods=['GET', 'POST'])
 def index():
-    sendMessage(chatID= 1113524785 , message="test")
+    
     return render_template("index.html", user=current_user)
 
 
@@ -292,6 +292,9 @@ def check_phase(bus_id):
                 trip.current_phase = nxt_phase
                 db.session.commit()
                 print(">>>>>>PHASE UPDATED SUCCESSFULLY !!!!") 
+                if trip.session == "M":
+                    alert_phase_updated( route = trip.route_id  , curr_phase = trip.curr_phase)
+                    alert_stop_reached(route = trip.route_id  , curr_phase = trip.curr_phase)
             else:
                 print(">>>> NO UPDATES !!! \n")
         else:
@@ -351,29 +354,40 @@ def update_rfid():
         trip = None
     if trip :
         user = User.query.filter_by(rfid_number = rfid).first()
-        if user.type == "C" or user.type == "A":
-            if trip.status == "CREATED":
-                trip.status = "INITIATED"
-                db.session.commit()
-                if trip.session == "M":
-                        msg = "Trip has been initiated , \nBus no :{0}".format(trip.bus_id)
-                        students = Student_details.query.filter_by(route=trip.route_id ).all()
-                        for s in students:
-                            chatID = s.chat_id
-                            sendMessage(chatID=chatID , message = msg)
+        if user :
+            if user.type == "C" or user.type == "A":
+                if trip.status == "CREATED":
+                    trip.status = "INITIATED"
+                    db.session.commit()
+                    if trip.session == "M":
+                        alert_M_trip_initiated(route= trip.route_id,  bus =trip.bus_id)
+                    elif trip.session=="E":
+                        alert_E_trip_initiated(route = trip.route_id , bus=trip.bus_id)
+                        
+                    d = datetime.datetime.now().strftime("%X")
+                    trip.start_time = d 
+                    db.session.commit()
+                
+            else:
+                print("STUDENT FUNCTION")
+                student_details= Student_details.query.filter_by(id = user.id).first()
+                if student_details.route == trip.route_id:
+                    #valid student
+                    #book_ticket
+                    
+                    #send alert boareded bus
+                    name = user.name
+                    bus_no = trip.bus_id
+                    parent_chat_id = student_details.parent_chat_id
+                    alert_boarded_bus(name=name ,parent_chat_id = parent_chat_id , bus_no = bus_no  )
+                    print("alerted")
+                else:
+                    print("Invalid student")
 
-                elif trip.session=="E":
-                    msg = "Trip has been initiated , \nBus will depart in 15 mins !!!\nBus No :  ".format(trip.bus_id)
-                    students = Student_details.query.filter_by(route=trip.route_id ).all()
-                    for s in students:
-                        chatID = s.chat_id
-                        sendMessage(chatID=chatID , message = msg)
-                d = datetime.datetime.now().strftime("%X")
-                trip.start_time = d 
-                db.session.commit()
-            
+
         else:
-            print("STUDENT FUNCTION")
+            print("Non valid User !!!")
+
     return jsonify({})
     
 
@@ -391,6 +405,42 @@ def sendMessage(chatID , message):
         logMESSAGE(response.text)
     except Exception as e:
         print(e)
+    
+
+
+def alert_M_trip_initiated(route , bus):
+    msg = "Trip {0} has been initiated !!!  \nTodays bus no :{1}".format(route , bus)
+    students = Student_details.query.filter_by(route=route).all()
+    for s in students:
+        chatID = s.student_chat_id
+        sendMessage(chatID=chatID , message = msg)
+    
+def alert_E_trip_initiated(route , bus):
+    msg = "Trip {0} has been initiated !!! \nBus will depart in 15 mins !!!\nBoard on bus No : {1}  ".format(route , bus)
+    students = Student_details.query.filter_by(route= route ).all()
+    for s in students:
+        chatID = s.student_chat_id
+        sendMessage(chatID=chatID , message = msg)
+
+def alert_boarded_bus(name , parent_chat_id , bus_no):
+    msg = "{0} has boarded on bus no {1}".format(name , bus_no)
+    sendMessage(chatID=parent_chat_id , message=msg)
+
+
+def alert_phase_updated(route,curr_phase):
+    students = Student_details.query.filter_by(route = route, trigger_phase = curr_phase).all()
+    for s in students:
+        msg = "Bus has reached {0} !!! ".format(curr_phase)
+        sendMessage(chatID=s.student_chat_id , message=msg)
+
+    pass 
+
+
+def alert_stop_reached(route,curr_phase):
+    students = Student_details.query.filter_by(route = route, home_phase = curr_phase).all()
+    for s in students:
+        msg = "Bus has reached your stop - {0} !!! ".format(curr_phase)
+        sendMessage(chatID=s.student_chat_id , message=msg)
     
 
 def logMESSAGE(response):

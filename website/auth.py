@@ -1,7 +1,7 @@
 from fileinput import filename
 from importlib.metadata import metadata
 from flask import Blueprint, render_template, request, flash, redirect, url_for
-from .models import User
+from .models import User , Student_details
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
 from flask_login import login_user, login_required, logout_user, current_user
@@ -108,6 +108,13 @@ def sign_up():
         password1 = request.form.get('password1')
         password2 = request.form.get('password2')
 
+        route = request.form.get('route')
+        parents_phone =  request.form.get('parents_phone')
+        student_chat_id =  request.form.get('student_chat_id')
+        parent_chat_id = request.form.get('parent_chat_id')
+
+
+
         user = User.query.filter_by(email=email).first()
         if user:
             flash('Email already exists.', category='error')
@@ -120,12 +127,30 @@ def sign_up():
         elif len(password1) < 2:
             flash('Password must be at least 7 characters.', category='error')
         else:
-            new_user = User(email=email, name= name ,phone_number= phone_number ,  password=generate_password_hash(
-                password1, method='sha256') , type = "S")
+            new_user = User(email=email, 
+                            name= name ,
+                            phone_number= phone_number ,
+                            password=generate_password_hash(password1, method='sha256') ,
+                            type = "S",
+                            )
+            
             db.session.add(new_user)
             db.session.commit()
             login_user(new_user, remember=True)
             generate_account_details(current_user)
+            additional_details = Student_details(id = current_user.id,
+                                                route = route,
+                                                parents_phone = parents_phone , 
+                                                student_chat_id = student_chat_id , 
+                                                parent_chat_id = parent_chat_id,
+                                                alrt_s_before_stop = "Y",
+                                                alrt_s_stop_reached = "Y"  , 
+                                                alrt_s_trip_initiated = "Y" , 
+                                                alrt_p_boarded_bus = "Y" , 
+                                                alrt_p_before_stop = "Y" , 
+                                                alrt_p_smart_alert = "Y" )
+            db.session.add(additional_details)
+            db.session.commit()
             flash('Account created!', category='success')
             return redirect(url_for('views.student_home'))
 

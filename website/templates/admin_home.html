@@ -24,42 +24,6 @@
 </div>
 
 
-<!-- DETAILS-->
-<div>
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th scope="col" ><b>Particulars</b></th>
-          <th scope="col"><b>Details</b></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th scope="row">Name</th>
-          <td>{{user.name}}</td>
-        </tr>
-        <tr>
-          <th scope="row">Account Number</th>
-          <td>{{user.account_number}}</td>
-        </tr>
-        <tr>
-          <th scope="row">Phone Number</th>
-          <td>{{user.phone_number}}</td>
-        </tr>
-        <tr>
-          <th scope="row">Account Type</th>
-          <td>{{user.type}}</td>
-        </tr>
-        <tr>
-          <th scope="row">Account Balance</th>
-          <td>{{user.balance}}</td>
-        </tr>
-        
-      </tbody>
-    </table>
-</div>
-
-
 <div >
     <h1>ALERTS !!! </h1>
     {%for alert in alerts%}
@@ -69,7 +33,5 @@
     {%endfor%}
 </div>
 
-<br>
-<iframe src="{{ url_for("views.admin_emulator")}}" height="200" width="100%" title="Iframe Example"></iframe>
 <br>
 {% endblock %}

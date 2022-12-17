@@ -20,8 +20,11 @@ class Student_details(db.Model , UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     route = db.Column(db.String(1))
     parents_phone = db.Column(db.String(15))
-    chat_id = db.Column(db.String(30))
-    
+    student_chat_id = db.Column(db.String(30))
+    parent_chat_id = db.Column(db.String(30))
+    trigger_phase = db.Column(db.String(30))
+    home_phase = db.Column(db.String(30))
+
     alrt_s_before_stop = db.Column(db.String(1))
     alrt_s_stop_reached = db.Column(db.String(1))
     alrt_s_trip_initiated = db.Column(db.String(1))
