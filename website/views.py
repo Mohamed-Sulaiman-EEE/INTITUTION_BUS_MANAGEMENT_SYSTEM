@@ -293,8 +293,8 @@ def check_phase(bus_id):
                 db.session.commit()
                 print(">>>>>>PHASE UPDATED SUCCESSFULLY !!!!") 
                 if trip.session == "M":
-                    alert_phase_updated( route = trip.route_id  , curr_phase = trip.curr_phase)
-                    alert_stop_reached(route = trip.route_id  , curr_phase = trip.curr_phase)
+                    alert_phase_updated( route = trip.route_id  , curr_phase = trip.current_phase)
+                    alert_stop_reached(route = trip.route_id  , curr_phase = trip.current_phase)
             else:
                 print(">>>> NO UPDATES !!! \n")
         else:
