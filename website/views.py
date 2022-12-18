@@ -8,7 +8,7 @@ from .models import User
 from . import db
 import json , requests , random , datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-from .models import Student_details , Working_day , Site_settings , Route , Location_reference , Bus_data, Conductor_details , Trips
+from .models import Student_details , Working_day , Site_settings , Route , Location_reference , Bus_data, Conductor_details , Trips , Tickets
 from twilio.rest import Client
 ACCOUNT_SID = "AC7f9029cb62c986a4c38b0ef0bb395a27" 
 
@@ -118,7 +118,9 @@ def admin_home():
 @views.route('/admin-user-management', methods=['GET', 'POST'])
 @login_required
 def admin_user_management():
-    return render_template("admin_user_management.html" , user = current_user )
+    students = User.query.filter_by(type = "S").all()
+    student_details = Student_details.query.all()
+    return render_template("admin_user_management.html" , user = current_user , students= students , student_details=student_details )
 
 
 @views.route('/admin-trip-management', methods=['GET', 'POST'])
@@ -137,7 +139,10 @@ def admin_trip_management():
 @views.route('/admin-fleet-management', methods=['GET', 'POST'])
 @login_required
 def admin_fleet_management():
-    return render_template("admin_fleet_management.html" , user = current_user )
+    routes = Route.query.all()
+    buses = Bus_data.query.all()
+    locations = Location_reference.query.all()
+    return render_template("admin_fleet_management.html" , user = current_user , routes = routes, buses = buses , locations = locations )
 
 
 
@@ -221,6 +226,15 @@ def create_trips():
     
     return jsonify({})
 
+
+@views.route('utility/delete-trip' , methods = ['POST' , 'GET'])
+def delete_trip():
+    data = json.loads(request.data)
+    print(data)
+    return jsonify({})
+
+
+
 @views.route('utility/increment-working-day' ,methods=["POST"])
 def increment_working_day():
     working_day = Site_settings.query.filter_by(key="current_working_day").first()
@@ -230,6 +244,12 @@ def increment_working_day():
     
     return jsonify({})
 
+@views.route('utility/toggle-notification-settings' , methods = ["POST ", "GET"])
+def toggle_notification_settings():
+    data = json.loads(request.data)
+    print(data['trip_id'])
+    print('ohh yeahhh')
+    return jsonify({})
 
 #...................................API.................................................
 
@@ -371,19 +391,47 @@ def update_rfid():
             else:
                 print("STUDENT FUNCTION")
                 student_details= Student_details.query.filter_by(id = user.id).first()
+                
                 if student_details.route == trip.route_id:
                     #valid student
-                    #book_ticket
+                    #check incoming or outgoing
+                    ticket = Tickets.query.filter_by(trip_id = trip.trip_id , user_id = user.id).first()
                     
-                    #send alert boareded bus
-                    name = user.name
-                    bus_no = trip.bus_id
-                    parent_chat_id = student_details.parent_chat_id
-                    alert_boarded_bus(name=name ,parent_chat_id = parent_chat_id , bus_no = bus_no  )
-                    print("alerted")
+                    if ticket == None:
+                        print("Gonna book ticket")
+                        #incoming
+                        #book_ticket
+                        in_time = datetime.datetime.now().strftime("%X")
+                        new_ticket = Tickets(user_id = user.id , 
+                                        trip_id = trip.trip_id,
+                                        rfid_number = user.rfid_number,
+                                        in_time = in_time , 
+                                        out_time="XX:YY:ZZ",
+                                        status = "IN")
+                        db.session.add(new_ticket)
+                        db.session.commit()
+                        name = user.name
+                        bus_no = trip.bus_id
+                        parent_chat_id = student_details.parent_chat_id
+                        #alert_boarded_bus(name=name ,parent_chat_id = parent_chat_id , bus_no = bus_no  )
+                        msg = "Parent Alert : {0} has boarded on bus no {1} @ {2}".format(name , bus_no , in_time)
+                        sendMessage(chatID=parent_chat_id , message=msg)
+                    else:
+                        #outgoing
+                        out_time = datetime.datetime.now().strftime("%X")
+                        ticket.out_time = out_time
+                        ticket.status= "OUT"
+                        db.session.commit()
+                        #send parent message got down
+                        name = user.name
+                        bus_no = trip.bus_id
+                        parent_chat_id = student_details.parent_chat_id
+                        #alert_boarded_bus(name=name ,parent_chat_id = parent_chat_id , bus_no = bus_no  )
+                        msg = "Parent Alert : {0} has got down from bus no {1} @ {2}".format(name , bus_no , out_time)
+                        sendMessage(chatID=parent_chat_id , message=msg)
+                    
                 else:
                     print("Invalid student")
-
 
         else:
             print("Non valid User !!!")
@@ -452,7 +500,14 @@ def logMESSAGE(response):
     f.close()
 
 
+@views.route('/test' , methods=["POST" , "GET"])
+@login_required
+def test():
+    flash("test")
+    return render_template("admin_home.html")
 
+
+#...............EMULATOR.....................
 
 
 

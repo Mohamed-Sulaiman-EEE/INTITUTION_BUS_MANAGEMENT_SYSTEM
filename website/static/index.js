@@ -166,3 +166,42 @@ function book_ticket(){
   let no = document.getElementById("no").value;
   console.log(account_number);
 }
+
+
+
+function delete_trip()
+{
+  let trip_id = 55;
+  fetch("/utility/delete-trip", 
+  {
+    method: "POST",
+    body: JSON.stringify({ trip_id : trip_id }),
+  }
+  )
+
+}
+
+function toggle_notification_settings()
+{
+  let opti = "hii";
+  fetch("/utility/toggle-notification-settings",  
+  {
+    method: "POST",
+    body: JSON.stringify({settings:opti}),
+  }).then((_res) => {
+    window.location.href = "/student-notification-settings";
+  });;
+  
+}
+
+
+
+function add_student()
+{
+  fetch("/admin-home",  
+  {
+    method: "GET",
+    body: JSON.stringify({}),
+  }
+  )
+}

@@ -88,6 +88,20 @@ class Trips(db.Model):
     start_time =  db.Column(db.String(15))
     end_time = db.Column(db.String(15))
 
+
+class Tickets(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    trip_id =  db.Column(db.String(1))
+    user_id = in_time =  db.Column(db.Integer)
+    rfid_number =  db.Column(db.String(20))
+    in_time =  db.Column(db.String(15))
+    out_time =  db.Column(db.String(15))
+    status = db.Column(db.String(10))
+
+
+
+
+
 #............................NEW .....................................
 
 

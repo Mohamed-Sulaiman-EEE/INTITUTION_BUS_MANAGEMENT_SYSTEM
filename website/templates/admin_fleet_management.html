@@ -2,6 +2,79 @@
 {% block title %} Admin Fleet Management {% endblock %} 
 
 {% block content %}
+<div>
+    <h1 align="center">Bus Management</h1>
+    <table class = "table table-striped table-dark">
+        <tr>
+            <th>Bus No</th>
+            <th>Plate No</th>
+            <th>GPS</th>
+            <th>Locate on Map</th>
+        </tr>
 
+        {% for b in buses %}
+        <tr>
+        <th>{{b.no}}</th>
+        <th>{{b.plate_number}}</th>
+        <th>{{b.gps}}</th>
+        <th>
+            
+            <button href="/test"> 
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-geo-alt-fill" viewBox="0 0 16 16">
+                <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+                </svg>
+            <b>Map</b>    
+            </button>
+        </th>
+        </tr>
+        {%endfor%}
+    </table>
+</div>
+
+
+<div>
+    <h1 align="center">Route Management</h1>
+    <table class = "table table-striped table-dark" >
+        <tr>
+            <th>Route ID</th>
+            <th>Session</th>
+            <th>Starting stop</th>
+            <th>Ending Stop</th>
+            <th>Phases</th>
+        </tr>
+
+        {% for r in routes %}
+        <tr>
+        <th>{{r.route_id}}</th>
+        <th>{{r.session}}</th>
+        <th>{{r.start}}</th>
+        <th>{{r.end}}</th>
+        <th>{{r.phases}}</th>
+        </tr>
+        {%endfor%}
+    </table>
+    
+</div>
+
+
+<div>
+    <h1 align="center">Location Referances</h1>
+    <table class="table table-striped  table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Lat</th>
+            <th>Long</th>
+        </tr>
+        {% for l in locations %}
+        <tr>
+            <th>{{l.id}}</th>
+            <th>{{l.name}}</th>
+            <th>{{l.lat}}</th>
+            <th>{{l.long}}</th>
+        </tr>
+        {%endfor%}
+    </table>
+</div>
 
 {% endblock %}
