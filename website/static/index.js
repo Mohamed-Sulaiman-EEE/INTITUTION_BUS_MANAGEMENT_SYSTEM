@@ -35,9 +35,6 @@ if (document.getElementById("friday").checked)
 }
 
 
-
-
-
 function create_trips(){
   let working_day = document.getElementById("working_day").value
   let route_id = document.getElementById("route_id").value
@@ -169,29 +166,28 @@ function book_ticket(){
 
 
 
-function delete_trip()
+function delete_trip(trip_id)
 {
-  let trip_id = 55;
   fetch("/utility/delete-trip", 
   {
     method: "POST",
     body: JSON.stringify({ trip_id : trip_id }),
   }
-  )
+  ).then((_res) => {
+    window.location.href = "/admin-trip-management";
+  });;
 
 }
 
-function toggle_notification_settings()
+function toggle_notification_settings(option)
 {
-  let opti = "hii";
   fetch("/utility/toggle-notification-settings",  
   {
     method: "POST",
-    body: JSON.stringify({settings:opti}),
+    body: JSON.stringify({option:option}),
   }).then((_res) => {
     window.location.href = "/student-notification-settings";
-  });;
-  
+  });
 }
 
 
@@ -205,3 +201,46 @@ function add_student()
   }
   )
 }
+
+
+
+//EMULATOR FUNCTIONS
+
+function emulator_rfid_1()
+{
+  let rfid = "TCE00001";
+  let bus_id = "1";
+  fetch("/api/update-rfid", 
+  {
+    method: "POST",
+    body: JSON.stringify({ bus_id :bus_id , rfid:rfid }),
+  }
+  ).then(x => x.text())
+  .then(y => document.getElementById("response").innerHTML = y);
+
+}
+function emulator_rfid_2()
+{
+  let rfid = "TCE00002";
+  let bus_id = "1";
+  fetch("/api/update-rfid", 
+  {
+    method: "POST",
+    body: JSON.stringify({ bus_id :bus_id , rfid:rfid }),
+  }
+  ).then(x => x.text())
+  .then(y => document.getElementById("response").innerHTML = y);
+}
+function emulator_rfid_3()
+{
+  let rfid = "TCE00003";
+  let bus_id = "1";
+  fetch("/api/update-rfid", 
+  {
+    method: "POST",
+    body: JSON.stringify({ bus_id :bus_id , rfid:rfid }),
+  }
+  ).then(x => x.text())
+  .then(y => document.getElementById("response").innerHTML = y);
+}
+

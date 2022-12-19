@@ -156,7 +156,24 @@ def admin_finanacial_stats():
 @views.route('/admin-emulator', methods=['GET', 'POST'])
 @login_required
 def admin_emulator():
-    return render_template("admin_emulator.html" , user = current_user )
+    working_day = Site_settings.query.filter_by(key="current_working_day").first().value
+    current_trip = Trips.query.filter_by(working_day = working_day,bus_id=1).all()
+    queryM = current_trip[0].status
+    queryE = current_trip[1].status
+    if  queryM != 'COMPLETED':
+        trip = current_trip[0]
+    elif queryM =="COMPLETED" and queryE !="COMPLETED" :
+        trip=current_trip[1]
+    else:
+        trip = None
+
+    if trip :
+        bus = Bus_data.query.filter_by(no = trip.bus_id).first()
+    else:
+        bus = None
+    current_phase = trip.current_phase
+
+    return render_template("admin_emulator.html" , user = current_user , trip = trip  , bus = bus , current_phase=current_phase)
 
 
 
@@ -227,10 +244,15 @@ def create_trips():
     return jsonify({})
 
 
-@views.route('utility/delete-trip' , methods = ['POST' , 'GET'])
+@views.route('utility/delete-trip' , methods = ['POST'])
 def delete_trip():
     data = json.loads(request.data)
     print(data)
+    trip = Trips.query.filter_by(trip_id = data["trip_id"]).first()
+    working_day = Working_day.query.filter_by(day = trip.working_day).first()
+    working_day.trips_created = "N"
+    db.session.delete(trip)
+    db.session.commit()
     return jsonify({})
 
 
@@ -244,11 +266,19 @@ def increment_working_day():
     
     return jsonify({})
 
-@views.route('utility/toggle-notification-settings' , methods = ["POST ", "GET"])
+@views.route('utility/toggle-notification-settings' , methods = ["POST"])
+@login_required
 def toggle_notification_settings():
     data = json.loads(request.data)
-    print(data['trip_id'])
-    print('ohh yeahhh')
+    option = data["option"]
+    print(option)
+    sd = Student_details.query.filter_by(id=current_user.id).first()
+    if sd.alrt_s_before_stop == "Y":
+        sd.alrt_s_before_stop = "N"
+        db.session.commit()
+    else:
+        sd.alrt_s_before_stop = "Y" 
+        db.session.commit()
     return jsonify({})
 
 #...................................API.................................................
@@ -387,6 +417,8 @@ def update_rfid():
                     d = datetime.datetime.now().strftime("%X")
                     trip.start_time = d 
                     db.session.commit()
+                    status = "TRIP INITIATED"
+                    return jsonify({"status" : status})
                 
             else:
                 print("STUDENT FUNCTION")
@@ -416,6 +448,8 @@ def update_rfid():
                         #alert_boarded_bus(name=name ,parent_chat_id = parent_chat_id , bus_no = bus_no  )
                         msg = "Parent Alert : {0} has boarded on bus no {1} @ {2}".format(name , bus_no , in_time)
                         sendMessage(chatID=parent_chat_id , message=msg)
+                        status = "OK"
+                        return jsonify({"status" : status})
                     else:
                         #outgoing
                         out_time = datetime.datetime.now().strftime("%X")
@@ -429,14 +463,17 @@ def update_rfid():
                         #alert_boarded_bus(name=name ,parent_chat_id = parent_chat_id , bus_no = bus_no  )
                         msg = "Parent Alert : {0} has got down from bus no {1} @ {2}".format(name , bus_no , out_time)
                         sendMessage(chatID=parent_chat_id , message=msg)
+                        status = "OK"
+                        return jsonify({"status" : status})
                     
                 else:
-                    print("Invalid student")
+                    status = "NOT OK"
+                    return jsonify({"status" : status})
 
         else:
             print("Non valid User !!!")
-
-    return jsonify({})
+    response = "No Trip Active"
+    return jsonify({response:response})
     
 
 
