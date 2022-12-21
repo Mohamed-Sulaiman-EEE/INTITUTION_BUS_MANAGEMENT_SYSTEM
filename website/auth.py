@@ -112,6 +112,8 @@ def sign_up():
         parents_phone =  request.form.get('parents_phone')
         student_chat_id =  request.form.get('student_chat_id')
         parent_chat_id = request.form.get('parent_chat_id')
+        trigger_phase = request.form.get('trigger_phase')
+        home_phase = request.form.get('home_phase') 
 
 
 
@@ -148,7 +150,9 @@ def sign_up():
                                                 alrt_s_trip_initiated = "Y" , 
                                                 alrt_p_boarded_bus = "Y" , 
                                                 alrt_p_before_stop = "Y" , 
-                                                alrt_p_smart_alert = "Y" )
+                                                alrt_p_smart_alert = "Y" , 
+                                                trigger_phase = "",
+                                                home_phase="" )
             db.session.add(additional_details)
             db.session.commit()
             flash('Account created!', category='success')

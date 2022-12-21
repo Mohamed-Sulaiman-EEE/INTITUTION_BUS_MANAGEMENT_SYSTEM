@@ -8,7 +8,7 @@ from .models import User
 from . import db
 import json , requests , random , datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-from .models import Student_details , Working_day , Site_settings , Route , Location_reference , Bus_data, Conductor_details , Trips , Tickets
+from .models import Student_details , Working_day , Site_settings , Route , Location_reference , Bus_data, Conductor_details , Trips , Tickets , Distance_data
 from twilio.rest import Client
 ACCOUNT_SID = "AC7f9029cb62c986a4c38b0ef0bb395a27" 
 
@@ -17,7 +17,6 @@ views = Blueprint('views', __name__)
 #....................................................................................
 @views.route('/', methods=['GET', 'POST'])
 def index():
-    
     return render_template("index.html", user=current_user)
 
 
@@ -48,6 +47,9 @@ def student_home():
             route = routes[1]
             lat=Bus_data.query.filter_by(no = trip.bus_id).first().lat
             long=Bus_data.query.filter_by(no = trip.bus_id).first().long
+    else:
+        trip = None
+        lat = long=phase=route= None
    
 
 
@@ -240,6 +242,12 @@ def create_trips():
     w = Working_day.query.filter_by(day=working_day).first()
     w.trips_created="Y"
     db.session.commit()
+    def alert_conductor():
+        msg = "Conductor Alert !!!\nNew trip has been assigned for you ....\nWorking day :{0}\nRoute ID:{1}\nBus No :{2}\n".format(working_day,route_id,bus_id)
+        cd = Conductor_details.query.filter_by(conductor_id = conductor_id).first()
+        chatID= cd.chat_id
+        sendMessage(chatID=chatID , message=msg)
+    alert_conductor()
     
     return jsonify({})
 
@@ -287,7 +295,6 @@ def toggle_notification_settings():
 @views.route('api/update-gps' , methods = ['POST' , 'GET'])
 def update_gps():
     data = json.loads(request.data)
-    #print(data)
     bus_id = int(data["bus_id"])
     bus = Bus_data.query.filter_by(no = bus_id).first()
     bus.lat = data["lat"]
@@ -305,12 +312,9 @@ def update_gps():
         f.write("\n")
         f.close()
     logGPS()
-
     # DO ALL STUFF AFTER GPS UPDATE
     status = "OK"
-
     check_phase(bus_id)
-
     return jsonify({"status":status})
 
 def check_phase(bus_id):
@@ -342,29 +346,58 @@ def check_phase(bus_id):
                 trip.current_phase = nxt_phase
                 db.session.commit()
                 print(">>>>>>PHASE UPDATED SUCCESSFULLY !!!!") 
+                test_alert(nxt_phase)
                 if trip.session == "M":
                     alert_phase_updated( route = trip.route_id  , curr_phase = trip.current_phase)
                     alert_stop_reached(route = trip.route_id  , curr_phase = trip.current_phase)
             else:
                 print(">>>> NO UPDATES !!! \n")
         else:
-            trip.status = "COMPLETED"
+            def generate_fare():
+                tickets = Tickets.query.filter_by(trip_id = trip.trip_id).all()
+                total_km = 0
+                for t in tickets:
+                    total_km += t.distance
+                base_price = 500
+                per_km_price = base_price/total_km
+                for t in tickets:
+                    fare = t.distance * per_km_price
+                    t.fare = fare
+                    db.session.commit()
+                    fareAlert(trip.trip_id)
+            generate_fare()
             d = datetime.datetime.now().strftime("%X")
             trip.end_time = d
+            trip.status = "COMPLETED"
             db.session.commit()
+            def alertParents():
+                tickets = Tickets.query.filter_by(trip_id = trip.trip_id).all()
+                for t in tickets:
+                    out_time = datetime.datetime.now().strftime("%X")
+                    sd = Student_details.query.filter_by(id = t.user_id).first()
+                    msg = "Parent Alert !!!\nBus has reached TCE at {0}".format(out_time)
+                    parent_chat_id = sd.parent_chat_id
+                    sendMessage(chatID=parent_chat_id , message=msg)
+                    t.out_time = out_time
+                    t.status= "OUT"
+                    db.session.commit()
+            alertParents()
+            fareAlert()
     else:
         print(">>>> NO TRIP ACTIVE")
 
 def isOnRadius(curr_lat,curr_long, nxt_lat,nxt_long):
-    limit = 0.007
+    limit = 0.00215
     curr_lat=float(curr_lat)
     curr_long=float(curr_long)
     nxt_lat=float(nxt_lat)
     nxt_long=float(nxt_long)
+    print("*********************************************")
     print(curr_lat , curr_long , nxt_lat , nxt_long)
-    print(abs(curr_lat-nxt_lat))
-    print(abs(curr_long-nxt_long))
-    if abs(curr_lat-nxt_lat) <= limit or abs(curr_long-nxt_long) <=limit:
+    print(f'{abs(curr_lat-nxt_lat):5f}')
+    print(f'{abs(curr_long-nxt_long):5f}')
+    print("*********************************************")
+    if abs(curr_lat-nxt_lat) <= limit and abs(curr_long-nxt_long) <=limit:
         return True
     else: 
         return False
@@ -434,12 +467,17 @@ def update_rfid():
                         #incoming
                         #book_ticket
                         in_time = datetime.datetime.now().strftime("%X")
+                        distance_data = Distance_data.query.filter_by(route_id = trip.route_id , stop = student_details.home_phase).first() 
+        
                         new_ticket = Tickets(user_id = user.id , 
                                         trip_id = trip.trip_id,
                                         rfid_number = user.rfid_number,
                                         in_time = in_time , 
                                         out_time="XX:YY:ZZ",
-                                        status = "IN")
+                                        status = "IN",
+                                        route_id = trip.route_id,
+                                        distance = distance_data.distance,
+                                        fare = 0)
                         db.session.add(new_ticket)
                         db.session.commit()
                         name = user.name
@@ -482,7 +520,7 @@ def update_rfid():
 
 
 def sendMessage(chatID , message):
-    print("sendmessage called ..........")
+    
     apiToken = Site_settings.query.filter_by(key = "bot_token").first().value
     apiURL = f'https://api.telegram.org/bot{apiToken}/sendMessage'
     try:
@@ -527,6 +565,20 @@ def alert_stop_reached(route,curr_phase):
         msg = "Bus has reached your stop - {0} !!! ".format(curr_phase)
         sendMessage(chatID=s.student_chat_id , message=msg)
     
+def fareAlert(trip_id):
+    tickets = Tickets.query.filter_by(trip_id = trip_id).all()
+    for t in tickets:
+        sd = Student_details.query.filter_by(id = t.user_id).first()
+        msg = "Trip has been completed !!! \nToday's fare is Rs.{0}".format(t.fare)
+        chatID = sd.student_chat_id
+        sendMessage(chatID=chatID , message=msg)
+
+
+
+def test_alert(phase):
+    msg = "Phase Update Alert : {0} stop has been  reached ".format(phase)
+    sendMessage(chatID="1113524785" , message=msg)
+    #sendMessage(chatID="1809270475" , message=msg)
 
 def logMESSAGE(response):
     f = open("logMESSAGE.txt", "a")
@@ -542,6 +594,8 @@ def logMESSAGE(response):
 def test():
     flash("test")
     return render_template("admin_home.html")
+
+
 
 
 #...............EMULATOR.....................

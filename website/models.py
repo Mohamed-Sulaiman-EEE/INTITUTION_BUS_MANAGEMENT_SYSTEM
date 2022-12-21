@@ -35,6 +35,7 @@ class Student_details(db.Model , UserMixin):
 
 class Conductor_details(db.Model , UserMixin):
     conductor_id = db.Column(db.Integer, primary_key=True)
+    chat_id = db.Column(db.String(30))
 
 
 
@@ -91,14 +92,22 @@ class Trips(db.Model):
 
 class Tickets(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    trip_id =  db.Column(db.String(1))
+    trip_id =  db.Column(db.Integer)
     user_id = in_time =  db.Column(db.Integer)
     rfid_number =  db.Column(db.String(20))
     in_time =  db.Column(db.String(15))
     out_time =  db.Column(db.String(15))
     status = db.Column(db.String(10))
+    route_id = db.Column(db.String(1))
+    distance= db.Column(db.Integer)
+    fare = db.Column(db.Integer)
 
 
+class Distance_data(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    route_id =  db.Column(db.String(1))
+    stop = db.Column(db.String(15))
+    distance = db.Column(db.Integer)
 
 
 
