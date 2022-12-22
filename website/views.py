@@ -77,7 +77,12 @@ def student_notification_settings():
 @views.route('/student-trip-history', methods=['GET', 'POST'])
 @login_required
 def student_trip_history():
-    return render_template("student_trip_history.html" , user = current_user)
+    tickets  = Tickets.query.filter_by(user_id = current_user.id).all()
+    route_id = Student_details.query.filter_by(id=current_user.id).first()
+    route_id = route_id.route
+    trips = Trips.query.filter_by(route_id = route_id).all()
+    working_days = Working_day.query.all()
+    return render_template("student_trip_history.html" , user = current_user , tickets = tickets , trips = trips , working_days = working_days)
 
 
 
@@ -113,8 +118,10 @@ def conductor_trip_history():
 def admin_home():
     working_day = Site_settings.query.filter_by(key="current_working_day").first().value
     w = Working_day.query.filter_by(day=working_day).first()
+    ss = Site_settings.query.all()
+    trips = Trips.query.filter_by(working_day=w.day)
 
-    return render_template("admin_home.html" , user = current_user, w = w )
+    return render_template("admin_home.html" , user = current_user, w = w , ss= ss , trips=trips)
 
 
 @views.route('/admin-user-management', methods=['GET', 'POST'])
@@ -263,6 +270,15 @@ def delete_trip():
     db.session.commit()
     return jsonify({})
 
+@views.route('utility/change-route' , methods =["POST"])
+@login_required
+def change_route():
+    data = json.loads(request.data)
+    print(data)
+    sd = Student_details.query.filter_by(id = current_user.id).first()
+    sd.route = data["route_id"]
+    db.session.commit()
+    return jsonify({})
 
 
 @views.route('utility/increment-working-day' ,methods=["POST"])

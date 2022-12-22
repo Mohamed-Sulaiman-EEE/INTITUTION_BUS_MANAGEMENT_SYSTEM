@@ -19,7 +19,7 @@
       </tr>
       <tr>
         <th scope="row">RFID Number</th>
-        <td>{{user.rfid_number}}</td>
+        <td id = "rfid_number">{{user.rfid_number}}</td>
       </tr>
       <tr>
         <th scope="row">Phone Number</th>
@@ -59,7 +59,23 @@
   <a class="btn  btn-warning " href="/conductor-utility-repair-alert/ " role="button"  >RESET PASSWORD</a><br>
 </div>
 
+<br>
 
+<div class="card-sm" style="width: 20rem;background: rgb(0, 115, 237); border-radius: 20px;margin-left: 5px;margin-right: 5px; padding-left: 5px;padding-right: 5px;padding-bottom : 10px;display: inline-block;">
+  <form >
+      <div class="form-group">
+      <label for="password2"><h3>Route</h3></label>
+      <input
+        type="text"
+        class="form-control"
+        id="route_id"
+        name="route_id"
+        placeholder="Enter Route"
+      />
+      </div>
+    <button class="btn btn-danger" onclick="change_route()" >Change Route</button>
+  </form>
+</div>
 
-
+<br>
 {% endblock %}

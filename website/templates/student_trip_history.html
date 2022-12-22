@@ -2,7 +2,43 @@
 {% block title %}Student Trip History{% endblock %} 
 
 {% block content %}
+<div>
+    <table class="table table-secondary table-striped">
+        <tr>
+            <th><b>Ticket ID</b></th>   
+            <th><b>Working Day</b></th>
+            <th><b>Date</b></th>
+            <th><b>WeekDay</b></th>
+            <th><b>In Time</b></th>
+            <th><b>Out Time</b></th>
+            <th><b>Fare</b></th> 
+        </tr>
+        {%if tickets%}
+        {% for ticket in tickets %}
+        <tr>
+            <th>{{ticket.id}}</th>
+            
+                {% for trip in trips%}
+                    {% if trip.trip_id == ticket.trip_id%}
+                        {% for wd in working_days %}
+                            {% if trip.working_day == wd.day %}
+                            <th>{{trip.working_day}}</th>
+                            <th>{{wd.date}}</th>
+                            <th>{{wd.week_day}}</th>
+                            
+                            {%endif%}
+                        {%endfor%}
+                    {%endif%}
+                {%endfor%}
 
+            <th>{{ticket.in_time}}</th>
+            <th>{{ticket.out_time}}</th>
+            <th>{{ticket.fare}}</th>
+        </tr>
+        {%endfor%}
+        {%endif%}
+    </table>
+</div>
 
 
 {% endblock %}

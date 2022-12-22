@@ -203,6 +203,22 @@ function add_student()
 }
 
 
+function change_route()
+{
+  let route_id = document.getElementById("route_id").value;
+  //let rfid_number = document.getElementById("rfid_number").value;
+  //rfid_number = 55;
+  fetch("/utility/change-route", 
+  {
+    method: "POST",
+    body: JSON.stringify({ route_id : route_id }),
+  }
+  ).then((_res) => {
+    window.location.href = "/student-profile";
+  });;
+
+}
+
 
 //EMULATOR FUNCTIONS
 
