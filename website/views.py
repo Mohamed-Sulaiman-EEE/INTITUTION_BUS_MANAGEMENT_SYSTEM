@@ -347,9 +347,10 @@ def check_phase(bus_id):
         trip = None
 
     if trip :
-        route = Route.query.filter_by(route_id= trip.route_id).first()
+        route = Route.query.filter_by(route_id= trip.route_id , session = trip.session).first()
         phases = route.phases
         phases = phases.split(",")
+        #sendMessage(chatID="1113524785" , message=phases)
         curr_phase = trip.current_phase
         curr_index = phases.index(curr_phase)
 
@@ -371,11 +372,12 @@ def check_phase(bus_id):
         else:
             def generate_fare():
                 tickets = Tickets.query.filter_by(trip_id = trip.trip_id).all()
-                total_km = 0
+                total_km = 1
                 for t in tickets:
                     total_km += t.distance
                 base_price = 500
-                per_km_price = base_price/total_km
+                #per_km_price = base_price/total_km
+                per_km_price = 4
                 for t in tickets:
                     fare = t.distance * per_km_price
                     t.fare = fare
@@ -387,16 +389,17 @@ def check_phase(bus_id):
             trip.status = "COMPLETED"
             db.session.commit()
             def alertParents():
-                tickets = Tickets.query.filter_by(trip_id = trip.trip_id).all()
-                for t in tickets:
-                    out_time = datetime.datetime.now().strftime("%X")
-                    sd = Student_details.query.filter_by(id = t.user_id).first()
-                    msg = "Parent Alert !!!\nBus has reached TCE at {0}".format(out_time)
-                    parent_chat_id = sd.parent_chat_id
-                    sendMessage(chatID=parent_chat_id , message=msg)
-                    t.out_time = out_time
-                    t.status= "OUT"
-                    db.session.commit()
+                if trip.session == "M":
+                    tickets = Tickets.query.filter_by(trip_id = trip.trip_id).all()
+                    for t in tickets:
+                        out_time = datetime.datetime.now().strftime("%X")
+                        sd = Student_details.query.filter_by(id = t.user_id).first()
+                        msg = "Parent Alert !!!\nBus has reached TCE at {0}".format(out_time)
+                        parent_chat_id = sd.parent_chat_id
+                        sendMessage(chatID=parent_chat_id , message=msg)
+                        t.out_time = out_time
+                        t.status= "OUT"
+                        db.session.commit()
             alertParents()
             fareAlert()
     else:
