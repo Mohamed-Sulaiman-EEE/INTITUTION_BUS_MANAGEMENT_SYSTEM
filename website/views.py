@@ -8,7 +8,7 @@ from .models import User
 from . import db
 import json , requests , random , datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-from .models import Student_details , Working_day , Site_settings , Route , Location_reference , Bus_data, Conductor_details , Trips , Tickets , Distance_data
+from .models import Student_details , Working_day , Site_settings , Route , Location_reference , Bus_data, Conductor_details , Trips , Tickets , Distance_data , Cards
 from twilio.rest import Client
 ACCOUNT_SID = "AC7f9029cb62c986a4c38b0ef0bb395a27" 
 
@@ -469,8 +469,7 @@ def update_rfid():
                     d = datetime.datetime.now().strftime("%X")
                     trip.start_time = d 
                     db.session.commit()
-                    status = "TRIP INITIATED"
-                    return jsonify({"status" : status})
+                    return jsonify({ "STATUS" : "TRIP INITIATED"})
                 
             else:
                 print("STUDENT FUNCTION")
@@ -506,7 +505,7 @@ def update_rfid():
                         msg = "Parent Alert : {0} has boarded on bus no {1} @ {2}".format(name , bus_no , in_time)
                         sendMessage(chatID=parent_chat_id , message=msg)
                         status = "OK"
-                        return jsonify({"status" : status})
+                        return jsonify({"STATUS" : "OK"})
                     else:
                         #outgoing
                         out_time = datetime.datetime.now().strftime("%X")
@@ -521,18 +520,29 @@ def update_rfid():
                         msg = "Parent Alert : {0} has got down from bus no {1} @ {2}".format(name , bus_no , out_time)
                         sendMessage(chatID=parent_chat_id , message=msg)
                         status = "OK"
-                        return jsonify({"status" : status})
+                        return jsonify({"STATUS" : "OK"})
                     
                 else:
-                    status = "NOT OK"
-                    return jsonify({"status" : status})
+                    return jsonify({"STATUS" : "DENIED"})
 
         else:
             print("Non valid User !!!")
-    response = "No Trip Active"
-    return jsonify({response:response})
+            return jsonify({"STATUS" : "DENIED"})
     
+    return jsonify({"STATUS" : "DENIED"})
 
+
+@views.route('/api/update-rfid-pico' , methods = ["POST"])
+def update_rfid_pico():
+    data = json.loads(request.data)
+    card = data["card"]
+    bus_id = data["bus_id"]
+    rfid = Cards.query.filter_by(card = card ).first().data
+    url = "https://mohamedsulaiman.pythonanywhere.com/api/update-rfid"
+    data = {"bus_id" : bus_id, "rfid":rfid}
+    reply = requests.post(url=url , json = data )
+    print(reply)
+    return reply
 
 
 #........................MESSAGING SERVICES......................

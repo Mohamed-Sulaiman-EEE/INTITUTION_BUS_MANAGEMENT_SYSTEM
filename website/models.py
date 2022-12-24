@@ -109,7 +109,9 @@ class Distance_data(db.Model):
     stop = db.Column(db.String(15))
     distance = db.Column(db.Integer)
 
-
+class Cards(db.Model):
+    card = db.Column(db.String(25), primary_key=True)
+    data = db.Column(db.String(15))
 
 #............................NEW .....................................
 
