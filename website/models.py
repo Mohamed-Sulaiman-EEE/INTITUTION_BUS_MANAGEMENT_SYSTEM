@@ -110,6 +110,7 @@ class Distance_data(db.Model):
     distance = db.Column(db.Integer)
 
 class Cards(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
     card = db.Column(db.String(25), primary_key=True)
     data = db.Column(db.String(15))
 

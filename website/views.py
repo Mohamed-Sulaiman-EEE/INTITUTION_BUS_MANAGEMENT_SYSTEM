@@ -250,7 +250,7 @@ def create_trips():
     w.trips_created="Y"
     db.session.commit()
     def alert_conductor():
-        msg = "Conductor Alert !!!\nNew trip has been assigned for you ....\nWorking day :{0}\nRoute ID:{1}\nBus No :{2}\n".format(working_day,route_id,bus_id)
+        msg = "@Conductor_Alert !!!\nNew trip has been assigned for you ....\nWorking day :{0}\nRoute ID:{1}\nBus No :{2}\n".format(working_day,route_id,bus_id)
         cd = Conductor_details.query.filter_by(conductor_id = conductor_id).first()
         chatID= cd.chat_id
         sendMessage(chatID=chatID , message=msg)
@@ -269,6 +269,18 @@ def delete_trip():
     db.session.delete(trip)
     db.session.commit()
     return jsonify({})
+
+
+@views.route('utility/delete-ticket' , methods = ['POST'])
+def delete_ticket():
+    data = json.loads(request.data)
+    ticket = Tickets.query.filter_by(id = data["ticket_id"]).first()
+    db.session.delete(ticket)
+    db.session.commit()
+    return jsonify({})
+
+
+
 
 @views.route('utility/change-route' , methods =["POST"])
 @login_required
@@ -394,7 +406,7 @@ def check_phase(bus_id):
                     for t in tickets:
                         out_time = datetime.datetime.now().strftime("%X")
                         sd = Student_details.query.filter_by(id = t.user_id).first()
-                        msg = "Parent Alert !!!\nBus has reached TCE at {0}".format(out_time)
+                        msg = "@Parent_Alert !!!\nBus has reached TCE at {0}".format(out_time)
                         parent_chat_id = sd.parent_chat_id
                         sendMessage(chatID=parent_chat_id , message=msg)
                         t.out_time = out_time
@@ -431,8 +443,15 @@ def update_rfid():
     data = json.loads(request.data)
     working_day = Site_settings.query.filter_by(key="current_working_day").first().value
     bus_id = int(data["bus_id"])
-    rfid = data["rfid"]
-    print(data)
+    card = data["card"]
+    if card :
+        #black box message
+        rfid = Cards.query.filter_by(card = card ).first().data
+        msg = "@Black_Box\nIncoming Data:{0}\nRFID Number:{1}".format(data,rfid)
+        sendMessage(chatID="1113524785" , message=msg)
+
+    else:
+        rfid = data["rfid"]
     
     def logRFID():
         f = open("logRFID.txt", "a")
@@ -440,7 +459,7 @@ def update_rfid():
         f.write(D + ": ")
         f.write(data["bus_id"])
         f.write("/ ")
-        f.write(data["rfid"])
+        f.write(rfid)
         f.write("\n")
         f.close()
     logRFID()
@@ -469,7 +488,7 @@ def update_rfid():
                     d = datetime.datetime.now().strftime("%X")
                     trip.start_time = d 
                     db.session.commit()
-                    return jsonify({ "STATUS" : "TRIP INITIATED"})
+                    return jsonify({"STATUS":"TRIP INITIATED"})
                 
             else:
                 print("STUDENT FUNCTION")
@@ -502,7 +521,7 @@ def update_rfid():
                         bus_no = trip.bus_id
                         parent_chat_id = student_details.parent_chat_id
                         #alert_boarded_bus(name=name ,parent_chat_id = parent_chat_id , bus_no = bus_no  )
-                        msg = "Parent Alert : {0} has boarded on bus no {1} @ {2}".format(name , bus_no , in_time)
+                        msg = "@Parent_Alert \n {0} has boarded on bus no {1} @ {2}".format(name , bus_no , in_time)
                         sendMessage(chatID=parent_chat_id , message=msg)
                         status = "OK"
                         return jsonify({"STATUS" : "OK"})
@@ -517,7 +536,7 @@ def update_rfid():
                         bus_no = trip.bus_id
                         parent_chat_id = student_details.parent_chat_id
                         #alert_boarded_bus(name=name ,parent_chat_id = parent_chat_id , bus_no = bus_no  )
-                        msg = "Parent Alert : {0} has got down from bus no {1} @ {2}".format(name , bus_no , out_time)
+                        msg = "@Parent_Alert \n{0} has got down from bus no {1} @ {2}".format(name , bus_no , out_time)
                         sendMessage(chatID=parent_chat_id , message=msg)
                         status = "OK"
                         return jsonify({"STATUS" : "OK"})
@@ -532,14 +551,16 @@ def update_rfid():
     return jsonify({"STATUS" : "DENIED"})
 
 
-@views.route('/api/update-rfid-pico' , methods = ["POST"])
+@views.route('/api/update-rfid-pico' , methods = ["POST", "GET"])
 def update_rfid_pico():
     data = json.loads(request.data)
     card = data["card"]
     bus_id = data["bus_id"]
     rfid = Cards.query.filter_by(card = card ).first().data
+    
     url = "https://mohamedsulaiman.pythonanywhere.com/api/update-rfid"
     data = {"bus_id" : bus_id, "rfid":rfid}
+    sendMessage(chatID="1113524785" , message=rfid)
     reply = requests.post(url=url , json = data )
     print(reply)
     return reply
@@ -605,7 +626,7 @@ def fareAlert(trip_id):
 
 
 def test_alert(phase):
-    msg = "Phase Update Alert : {0} stop has been  reached ".format(phase)
+    msg = "@Phase_Update_Alert \n {0} stop has been  reached ".format(phase)
     sendMessage(chatID="1113524785" , message=msg)
     #sendMessage(chatID="1809270475" , message=msg)
 

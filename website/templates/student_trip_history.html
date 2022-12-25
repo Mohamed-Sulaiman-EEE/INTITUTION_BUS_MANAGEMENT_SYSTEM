@@ -12,6 +12,7 @@
             <th><b>In Time</b></th>
             <th><b>Out Time</b></th>
             <th><b>Fare</b></th> 
+            <th></th>
         </tr>
         {%if tickets%}
         {% for ticket in tickets %}
@@ -34,6 +35,7 @@
             <th>{{ticket.in_time}}</th>
             <th>{{ticket.out_time}}</th>
             <th>{{ticket.fare}}</th>
+            <th><button  class="btn btn-danger" onclick="delete_ticket({{ticket.id}})">Delete</button></th>
         </tr>
         {%endfor%}
         {%endif%}

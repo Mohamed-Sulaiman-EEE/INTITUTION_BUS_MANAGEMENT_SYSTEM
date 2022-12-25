@@ -179,6 +179,19 @@ function delete_trip(trip_id)
 
 }
 
+function delete_ticket(ticket_id)
+{
+  fetch("/utility/delete-ticket", 
+  {
+    method: "POST",
+    body: JSON.stringify({ ticket_id : ticket_id }),
+  }
+  ).then((_res) => {
+    window.location.href = "/student-trip-history";
+  });;
+
+}
+
 function toggle_notification_settings(option)
 {
   fetch("/utility/toggle-notification-settings",  
