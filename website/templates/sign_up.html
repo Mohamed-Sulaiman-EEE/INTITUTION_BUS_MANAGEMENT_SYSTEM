@@ -2,8 +2,16 @@
 {% block title %}Sign Up{% endblock %} 
 {% block
 content %}
+<style>
+  .h1{
+    color: blue;
+  }
+  .meh{
+    background-color: rgb(255, 178, 78);
+  }
+</style>
 <form method="POST">
-  <h1 align="center">Sign Up</h3>
+  <h1 align="center" class="meh">Sign Up</h3>
     
   <div class="form-group">
     <label for="email">Email Address</label>
@@ -19,7 +27,7 @@ content %}
   <div class="form-group">
     <label for="phone_number">Phone Number</label>
     <input
-      type="text"
+      type="number"
       class="form-control"
       id="phone_number"
       name="phone_number"

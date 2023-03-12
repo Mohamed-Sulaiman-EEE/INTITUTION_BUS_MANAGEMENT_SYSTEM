@@ -273,3 +273,5 @@ function emulator_rfid_3()
   .then(y => document.getElementById("response").innerHTML = y);
 }
 
+
+

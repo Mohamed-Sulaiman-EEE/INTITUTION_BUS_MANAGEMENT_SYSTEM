@@ -1,0 +1,16 @@
+.heading{
+    background-color: rgb(79, 79, 207);
+    border-radius: 5px;
+    margin: 5px;
+    width: fit-content;
+    vertical-align: middle;
+    color: white;
+    padding: 10px;
+}
+
+.home{
+    background-image: url('redstars.avif');
+    margin: 30px;
+    padding: 30px;
+    border: solid rgb(44, 44, 44) 10px;
+}

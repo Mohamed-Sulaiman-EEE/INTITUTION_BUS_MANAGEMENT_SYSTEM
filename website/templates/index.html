@@ -1,14 +1,16 @@
 {% extends "base.html" %}
 {% block title %} HOME {% endblock %} 
 {% block content%}
+<div class="container home"  >
 <h1 align = "center" style ="font-weight: 600 ; color :rgb(13, 176, 245) "  >
  " Bus Tracking System for Institutions "
 </h1>
 <div align = "center">
-<img src="{{ url_for('static', filename='images/bus.jpg') }}" class="img-fluid" alt="Responsive image" >
+<img src="{{ url_for('static', filename='images/bus.jpg') }}" class="img-fluid" alt="Responsive image" style="border-radius: 20px
+;" >
 </div>
 <div text-align = "center" >
-<h1 align = "center">Home Page</h1>
+<h1 align = "center" style="color: white;">Home Page</h1>
 </div>
 
 <div >
@@ -18,5 +20,6 @@
 
 </div>
 
+</div>
 
 {% endblock %}
