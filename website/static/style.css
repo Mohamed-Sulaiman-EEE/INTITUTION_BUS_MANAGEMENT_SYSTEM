@@ -13,4 +13,30 @@
     margin: 30px;
     padding: 30px;
     border: solid rgb(44, 44, 44) 10px;
+    border-top-right-radius: 100px;
+    border-bottom-left-radius: 100px;
+}
+
+.login-box{
+    align-self: center;
+    margin: 30px;
+    background-image: url('redstars.avif');
+    border-top-right-radius: 100px;
+    border-bottom-left-radius: 100px;
+    background-color: rgb(134,59,135);
+    border: solid black 5px;
+    padding: 30px;
+    color: white ;
+    font-size: large;
+
+
+}
+
+
+.form-box{
+    margin: 15px;
+    padding: 15px;
+    border-radius: 30px;
+    background-color: rgb(80, 177, 177);
+    display: inline-block;
 }

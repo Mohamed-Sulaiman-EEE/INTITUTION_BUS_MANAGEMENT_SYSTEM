@@ -114,6 +114,22 @@ class Cards(db.Model):
     card = db.Column(db.String(25), primary_key=True)
     data = db.Column(db.String(15))
 
+class Alerts(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    working_day = db.Column(db.Integer)
+    type = db.Column(db.String(15))
+    time = db.Column(db.String(15))
+    description = db.Column(db.String(50))
+    status = db.Column(db.String(15))
+
+
+
+
+    
+    
+    
+    
+    
 #............................NEW .....................................
 
 

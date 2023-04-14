@@ -124,10 +124,11 @@ function checkRFID()
 {
   let rfid = document.getElementById("rfid").value
   let bus_id = document.getElementById("bus_id").value
+  let card = null;
   fetch("/api/update-rfid", 
   {
     method: "POST",
-    body: JSON.stringify({ bus_id :bus_id , rfid:rfid }),
+    body: JSON.stringify({ bus_id :bus_id , rfid:rfid  , card : card}),
   }
   )
 
@@ -179,6 +180,21 @@ function delete_trip(trip_id)
 
 }
 
+
+function delete_location(location_id)
+{
+  fetch("/utility/delete-location", 
+  {
+    method: "DELETE",
+    body: JSON.stringify({ location_id:location_id }),
+  }
+  ).then((_res) => {
+    window.location.href = "/admin-fleet-management";
+  });;
+
+}
+
+
 function delete_ticket(ticket_id)
 {
   fetch("/utility/delete-ticket", 
@@ -203,17 +219,23 @@ function toggle_notification_settings(option)
   });
 }
 
-
-
-function add_student()
+function add_location()
 {
-  fetch("/admin-home",  
+  let name = document.getElementById('name').value;
+  let lat = document.getElementById('lat').value;
+  let long = document.getElementById('long').value;
+
+  fetch("/utility/add-location", 
   {
-    method: "GET",
-    body: JSON.stringify({}),
+    method: "POST",
+    body: JSON.stringify({ name : name , lat : lat , long : long }),
   }
-  )
+  ).then((_res) => {
+    window.location.href = "/admin-fleet-management";
+  });;
+
 }
+
 
 
 function change_route()
@@ -233,16 +255,42 @@ function change_route()
 }
 
 
+
+function resolve_alert(id){
+  fetch("/utility/resolve-alert", 
+  {
+    method: "POST",
+    body: JSON.stringify({ id : id }),
+  }
+  ).then((_res) => {
+    window.location.href = "/admin-home";
+  });;
+
+
+}
+
+function bus_breakdown_alert(bus_id){
+  fetch("/utility/bus-breakdown-alert", 
+  {
+    method: "POST",
+    body: JSON.stringify({ bus_id : bus_id }),
+  }
+  ).then((_res) => {
+    window.location.href = "/admin-emulator";
+  });;
+}
+
 //EMULATOR FUNCTIONS
 
 function emulator_rfid_1()
 {
   let rfid = "TCE00001";
   let bus_id = "1";
+  let card = null;
   fetch("/api/update-rfid", 
   {
     method: "POST",
-    body: JSON.stringify({ bus_id :bus_id , rfid:rfid }),
+    body: JSON.stringify({ bus_id :bus_id , rfid:rfid , card:card}),
   }
   ).then(x => x.text())
   .then(y => document.getElementById("response").innerHTML = y);
@@ -252,10 +300,11 @@ function emulator_rfid_2()
 {
   let rfid = "TCE00002";
   let bus_id = "1";
+  let card = null;
   fetch("/api/update-rfid", 
   {
     method: "POST",
-    body: JSON.stringify({ bus_id :bus_id , rfid:rfid }),
+    body: JSON.stringify({ bus_id :bus_id , rfid:rfid , card:card}),
   }
   ).then(x => x.text())
   .then(y => document.getElementById("response").innerHTML = y);
@@ -264,10 +313,11 @@ function emulator_rfid_3()
 {
   let rfid = "TCE00003";
   let bus_id = "1";
+  let card = null;
   fetch("/api/update-rfid", 
   {
     method: "POST",
-    body: JSON.stringify({ bus_id :bus_id , rfid:rfid }),
+    body: JSON.stringify({ bus_id :bus_id , rfid:rfid  , card : card}),
   }
   ).then(x => x.text())
   .then(y => document.getElementById("response").innerHTML = y);

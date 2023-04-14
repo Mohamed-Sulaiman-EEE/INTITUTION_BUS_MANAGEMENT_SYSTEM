@@ -21,7 +21,7 @@
 
 <br>
 
-<div class="conatiner-md">
+<div class="conatiner-sm">
   <table class="table table-striped table-dark">
     <tr>
       <th colspan="3"><h2 align="center"><b>Site Settings</b></h2></th>
@@ -44,28 +44,38 @@
 
 <br>
 
-<!-- TRIP DAHSBOARD-->
-<div>
-      <table class="table table-info">
-        <tr>
-          <th colspan="2"><h2 align="center"><b>Trip Details</b></h2></th>
-          {% for trip in trips%}
-          <tr>
-            <th colspan="2">
-              <h3>Trip ID <span class="badge bg-info">{{trip.trip_id}}</span></h3>
-              <h3>Route ID <span class="badge bg-info">{{trip.route_id}}</span></h3>
-              <h3>Conductor ID <span class="badge bg-info">{{trip.conductor_id}}</span></h3>
-              <h3>Session<span class="badge bg-info">{{trip.session}}</span></h3>
-              <h3>Status <span class="badge bg-info">{{trip.status}}</span></h3>
-              <h3>Bus ID <span class="badge bg-info">{{trip.bus_id}}</span></h3>
+<!-- Alerts-->
 
-            </th>
-          </tr>
-          {%endfor%}
+<div class="conatiner-sm">
+  <table class="table table-striped table-dark">
+    <tr>
+      <th colspan="6"><h2 align="center"><b>Alerts Dashboard</b></h2></th>
+    </tr>
+    <tr>
+      <th>ID</th>
+      <th>Type</th>
+      <th>Time</th>
+      <th>Working Day</th>
+      <th>Description</th>
+      <th>Status</th>
+      <th>Resolve</th>
 
-      </table>
-  
+    </tr>
+    
+      {%for alert in alerts%}
+      <tr>
+      <td>{{alert.id}}</td>
+      <td>{{alert.type}}</td>
+      <td>{{alert.time}}</td>
+      <td>{{alert.working_day}}</td>
+      <td>{{alert.description}}</td>
+      <td>{{alert.status}}</td>
+      <td><btn class="btn btn-danger" onclick="resolve_alert({{alert.id}});">Resolved</btn></td>
+      </tr>
+      {%endfor%}
+   
+
+  </table>
 </div>
-
 <br>
 {% endblock %}

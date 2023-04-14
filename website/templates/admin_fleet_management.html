@@ -79,10 +79,44 @@
             <th>{{l.lat}}</th>
             <th>{{l.long}}</th>
             <th><button class="btn btn-outline-success" onclick="newTab({{l.lat}} ,{{l.long}})">Map</button></th>
-            <th><button class="btn btn-danger">Delete</button></th>
+            <th><button class="btn btn-danger" onclick="delete_location({{l.id}})">Delete</button></th>
         </tr>
         {%endfor%}
     </table>
 </div>
 
+<div class="form-box">
+    <form>
+        <h2>Add Location</h2>
+        <div class="form-group">
+            <input
+              type="text"
+              class="form-control"
+              id="name"
+              placeholder="Enter Stop Name"
+            />
+        </div>
+
+        <div class="form-group">
+            <input
+              type="text"
+              class="form-control"
+              id="lat"
+              placeholder="Enter Latitude"
+            />
+        </div>
+
+        <div class="form-group">
+            <input
+              type="text"
+              class="form-control"
+              id="long"
+              placeholder="Enter Longitude"
+            />
+        </div>
+
+        <button class="btn btn-outline-success" onclick="add_location()" >Add Stop</button>
+    </form>
+
+</div>
 {% endblock %}

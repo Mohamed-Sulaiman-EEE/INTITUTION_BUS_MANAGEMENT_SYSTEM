@@ -8,8 +8,9 @@ from .models import User
 from . import db
 import json , requests , random , datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-from .models import Student_details , Working_day , Site_settings , Route , Location_reference , Bus_data, Conductor_details , Trips , Tickets , Distance_data , Cards
+from .models import Student_details , Working_day , Site_settings , Route , Location_reference , Bus_data, Conductor_details , Trips , Tickets , Distance_data , Cards, Alerts
 from twilio.rest import Client
+from sqlalchemy.sql import func
 ACCOUNT_SID = "AC7f9029cb62c986a4c38b0ef0bb395a27" 
 
 # END OF IMPORTS
@@ -33,6 +34,10 @@ def student_home():
     student_details = Student_details.query.filter_by(id = current_user.id).first()
     routes = Route.query.filter_by(route_id = student_details.route).all()
     trips = Trips.query.filter_by(working_day=w , route_id = student_details.route).all()
+    home_stop = student_details.home_phase
+    lat2 = Location_reference.query.filter_by(name = home_stop).first().lat
+    long2 = Location_reference.query.filter_by(name = home_stop).first().long
+
    
     if trips:
         if trips[0].status != "COMPLETED":
@@ -41,19 +46,20 @@ def student_home():
             route=routes[0]
             lat=Bus_data.query.filter_by(no = trip.bus_id).first().lat
             long=Bus_data.query.filter_by(no = trip.bus_id).first().long
+            
+            distance = get_distance(float(lat) , float(long) , float(lat2) , float(long2))
         else:
             trip  = trips[1]
             phase = routes[1].phases.split(",")
             route = routes[1]
             lat=Bus_data.query.filter_by(no = trip.bus_id).first().lat
             long=Bus_data.query.filter_by(no = trip.bus_id).first().long
+            distance = get_distance(float(lat) , float(long) , float(lat2) , float(long2))
     else:
         trip = None
         lat = long=phase=route= None
-   
 
-
-    return render_template("student_home.html" , user = current_user , w = working_day , trip=trip , phase = phase , route=route , lat=lat,long=long)
+    return render_template("student_home.html" , user = current_user , w = working_day , trip=trip , phase = phase , route=route , lat=lat,long=long,distance = distance)
 
 
 
@@ -120,8 +126,9 @@ def admin_home():
     w = Working_day.query.filter_by(day=working_day).first()
     ss = Site_settings.query.all()
     trips = Trips.query.filter_by(working_day=w.day)
+    alerts = Alerts.query.all()
 
-    return render_template("admin_home.html" , user = current_user, w = w , ss= ss , trips=trips)
+    return render_template("admin_home.html" , user = current_user, w = w , ss= ss , trips=trips , alerts = alerts)
 
 
 @views.route('/admin-user-management', methods=['GET', 'POST'])
@@ -158,7 +165,27 @@ def admin_fleet_management():
 @views.route('/admin-financial-stats', methods=['GET', 'POST'])
 @login_required
 def admin_finanacial_stats():
-    return render_template("admin_financial_stats.html" , user = current_user )
+    routes = ['A' , 'B' , 'C' , 'D']
+    tickets = Tickets.query.all()
+    def generate_report():
+        data = []
+        for route in routes:
+            row = []
+            distance_sum = 0
+            fare_sum = 0
+            for ticket in tickets:
+                if ticket.route_id == route:
+                    distance_sum+=ticket.distance
+                    fare_sum += ticket.fare
+            row.append(route)
+            row.append(distance_sum)
+            row.append(fare_sum)
+            data.append(row)
+        return data
+
+    data = generate_report()
+    
+    return render_template("admin_financial_stats.html" , user = current_user,data=data )
 
 
 
@@ -270,6 +297,14 @@ def delete_trip():
     db.session.commit()
     return jsonify({})
 
+@views.route('utility/delete-location' , methods = ['DELETE'])
+def delete_location():
+    data = json.loads(request.data)
+    location_id = data["location_id"]
+    location = Location_reference.query.filter_by(id = location_id).first()
+    db.session.delete(location)
+    db.session.commit()
+    return jsonify({})
 
 @views.route('utility/delete-ticket' , methods = ['POST'])
 def delete_ticket():
@@ -279,6 +314,18 @@ def delete_ticket():
     db.session.commit()
     return jsonify({})
 
+@views.route('utility/add-location' , methods=['POST'])
+def add_location():
+    data = json.loads(request.data)
+    name = data['name']
+    lat = data['lat']
+    long = data['long']
+    print(data)
+    gps = lat + "," + long
+    location = Location_reference(name=name , lat = lat , long=long, gps=gps)
+    db.session.add(location)
+    db.session.commit()
+    return jsonify({})
 
 
 
@@ -299,8 +346,32 @@ def increment_working_day():
     v = int(working_day.value)
     working_day.value = v + 1
     db.session.commit()
-    
     return jsonify({})
+
+@views.route('utility/resolve-alert' ,  methods = {'POST'})
+def resolve_alert():
+    data = json.loads(request.data)
+    id = data["id"]
+    alert = Alerts.query.filter_by(id=id).first()
+    alert.status = "Resolved"
+    db.session.commit()
+    return jsonify({})
+
+@views.route('utility/bus-breakdown-alert' , methods =['POST'])
+def bus_breakdown_alert():
+    data = json.loads(request.data)
+    id = data["bus_id"]
+    working_day = Site_settings.query.filter_by(key="current_working_day").first().value
+    d = datetime.datetime.now().strftime("%X")
+    description = "Bus no {0} is facing a breakdown at {1} !!!".format(id,d)
+    new_alert=Alerts(working_day=working_day , type='Bus BreakDown Alert' , time=d , description = description,status="Unresolved")
+    db.session.add(new_alert)
+    db.session.commit()
+    return jsonify({})
+
+
+
+
 
 @views.route('utility/toggle-notification-settings' , methods = ["POST"])
 @login_required
@@ -413,7 +484,6 @@ def check_phase(bus_id):
                         t.status= "OUT"
                         db.session.commit()
             alertParents()
-            fareAlert()
     else:
         print(">>>> NO TRIP ACTIVE")
 
@@ -444,7 +514,8 @@ def update_rfid():
     working_day = Site_settings.query.filter_by(key="current_working_day").first().value
     bus_id = int(data["bus_id"])
     card = data["card"]
-    if card :
+    
+    if card != None:
         #black box message
         rfid = Cards.query.filter_by(card = card ).first().data
         msg = "@Black_Box\nIncoming Data:{0}\nRFID Number:{1}".format(data,rfid)
@@ -524,7 +595,7 @@ def update_rfid():
                         msg = "@Parent_Alert \n {0} has boarded on bus no {1} @ {2}".format(name , bus_no , in_time)
                         sendMessage(chatID=parent_chat_id , message=msg)
                         status = "OK"
-                        return jsonify({"STATUS" : "OK"})
+                        return jsonify({"STATUS" : status})
                     else:
                         #outgoing
                         out_time = datetime.datetime.now().strftime("%X")
@@ -564,7 +635,6 @@ def update_rfid_pico():
     reply = requests.post(url=url , json = data )
     print(reply)
     return reply
-
 
 #........................MESSAGING SERVICES......................
 
@@ -647,6 +717,19 @@ def test():
 
 
 
+def get_distance(lat1 , lon1 , lat2 , lon2):
+    import math
+    R = 6371 
+    lat1_rad = math.radians(lat1)
+    lon1_rad = math.radians(lon1)
+    lat2_rad = math.radians(lat2)
+    lon2_rad = math.radians(lon2)
+    dlat = lat2_rad - lat1_rad
+    dlon = lon2_rad - lon1_rad
+    a = math.sin(dlat/2)**2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(dlon/2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+    distance = R * c
+    return round(distance  , 2)
 
 #...............EMULATOR.....................
 
