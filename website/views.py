@@ -364,6 +364,7 @@ def bus_breakdown_alert():
     working_day = Site_settings.query.filter_by(key="current_working_day").first().value
     d = datetime.datetime.now().strftime("%X")
     description = "Bus no {0} is facing a breakdown at {1} !!!".format(id,d)
+    admin_alert(description)
     new_alert=Alerts(working_day=working_day , type='Bus BreakDown Alert' , time=d , description = description,status="Unresolved")
     db.session.add(new_alert)
     db.session.commit()
@@ -425,6 +426,7 @@ def check_phase(bus_id):
     if  queryM == 'INITIATED':
         trip = current_trip[0]
     elif queryM =="COMPLETED" and queryE =="INITIATED" :
+        evening_trip= True
         trip=current_trip[1]
     else:
         trip = None
@@ -437,7 +439,7 @@ def check_phase(bus_id):
         curr_phase = trip.current_phase
         curr_index = phases.index(curr_phase)
 
-        print(curr_phase)
+        # print(curr_phase)
         if curr_index != len(phases)-1:
             nxt_phase = phases[curr_index+1]
             #curr_position = Location_reference.query.filter_by(name=curr_phase).first()
@@ -453,7 +455,6 @@ def check_phase(bus_id):
             else:
                 print(">>>> NO UPDATES !!! \n")
         else:
-            print("done")
             def generate_fare():
                 tickets = Tickets.query.filter_by(trip_id = trip.trip_id).all()
                 per_km_price = 4
@@ -480,6 +481,30 @@ def check_phase(bus_id):
                         t.status= "OUT"
                         db.session.commit()
             alertParents()
+            if evening_trip:
+                def check_missing_child():
+                    morning_trip = current_trip[0]
+                    evening_trip = current_trip[1]
+                    morning_trip_id = morning_trip.trip_id
+                    evening_trip_id = evening_trip.trip_id
+
+                    morning_tickets = Tickets.query.filter_by(trip_id = morning_trip_id )
+                    evening_tickets = Tickets.query.filter_by(trip_id = evening_trip_id)
+                    for m_ticket in morning_tickets:
+                        lost = True
+                        for e_ticket in evening_tickets:
+                            if m_ticket.user_id == e_ticket.user_id:
+                                lost = False
+                        if lost :
+                            user_id = m_ticket.user_id
+                            name = User.query.filter_by(id = user_id).first().name
+                            sd = Student_details.query.filter_by(id = user_id).first()
+                            msg = "@Parent_Alert !!!Your Child {0} hasnt boarded the return trip !!!\n".format(name)
+                            parent_chat_id = sd.parent_chat_id
+                            sendMessage(chatID=parent_chat_id , message=msg)
+                            create_missing_child_alert(name=name , id=user_id)
+
+                check_missing_child()
     else:
         print(">>>> NO TRIP ACTIVE")
 
@@ -697,12 +722,23 @@ def fareAlert(trip_id):
         chatID = sd.student_chat_id
         sendMessage(chatID=chatID , message=msg)
 
-
+def create_missing_child_alert(name , id):
+    working_day = Site_settings.query.filter_by(key="current_working_day").first().value
+    d = datetime.datetime.now().strftime("%X")
+    description = "Student {0} of ID {1} is missing in return trip!!!".format(name,id)
+    admin_alert(description)
+    new_alert=Alerts(working_day=working_day , type='Student Missing Alert' , time=d , description = description,status="Unresolved")
+    db.session.add(new_alert)
+    db.session.commit()
 
 def test_alert(phase):
     msg = "@Phase_Update_Alert \n {0} stop has been  reached ".format(phase)
     sendMessage(chatID="1113524785" , message=msg)
     #sendMessage(chatID="1809270475" , message=msg)
+
+
+def admin_alert(msg):
+    sendMessage(chatID="1113524785" , message=msg)
 
 def logMESSAGE(response):
     f = open("logMESSAGE.txt", "a")
