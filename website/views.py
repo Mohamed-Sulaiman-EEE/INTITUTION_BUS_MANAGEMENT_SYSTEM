@@ -437,7 +437,7 @@ def check_phase(bus_id):
         curr_phase = trip.current_phase
         curr_index = phases.index(curr_phase)
 
-
+        print(curr_phase)
         if curr_index != len(phases)-1:
             nxt_phase = phases[curr_index+1]
             #curr_position = Location_reference.query.filter_by(name=curr_phase).first()
@@ -453,13 +453,9 @@ def check_phase(bus_id):
             else:
                 print(">>>> NO UPDATES !!! \n")
         else:
+            print("done")
             def generate_fare():
                 tickets = Tickets.query.filter_by(trip_id = trip.trip_id).all()
-                total_km = 1
-                for t in tickets:
-                    total_km += t.distance
-                base_price = 500
-                #per_km_price = base_price/total_km
                 per_km_price = 4
                 for t in tickets:
                     fare = t.distance * per_km_price
@@ -575,8 +571,16 @@ def update_rfid():
                         #incoming
                         #book_ticket
                         in_time = datetime.datetime.now().strftime("%X")
-                        distance_data = Distance_data.query.filter_by(route_id = trip.route_id , stop = student_details.home_phase).first() 
-        
+                        route = student_details.route
+                        end_stop = Route.query.filter_by(route_id = route).first().end
+                        end_stop_location = Location_reference.query.filter_by(name = end_stop).first()
+                        lat1 = end_stop_location.lat
+                        long1 = end_stop_location.long
+                        # distance_data = Distance_data.query.filter_by(route_id = trip.route_id , stop = student_details.home_phase).first() 
+                        home_stop = student_details.home_phase
+                        lat2 = Location_reference.query.filter_by(name = home_stop).first().lat
+                        long2 = Location_reference.query.filter_by(name = home_stop).first().long
+                        distance_data = get_distance(float(lat1) , float(long1),  float(lat2),float(long2) )
                         new_ticket = Tickets(user_id = user.id , 
                                         trip_id = trip.trip_id,
                                         rfid_number = user.rfid_number,
@@ -584,7 +588,7 @@ def update_rfid():
                                         out_time="XX:YY:ZZ",
                                         status = "IN",
                                         route_id = trip.route_id,
-                                        distance = distance_data.distance,
+                                        distance = distance_data,
                                         fare = 0)
                         db.session.add(new_ticket)
                         db.session.commit()
